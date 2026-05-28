@@ -1,0 +1,59 @@
+<ion-content [fullscreen]="true" class="login-content">
+
+  <div class="login-container">
+
+    <div class="logo-section">
+      <ion-icon name="person-add-outline"></ion-icon>
+      <h1>Crear Cuenta</h1>
+      <p>Regístrate para continuar</p>
+    </div>
+
+    <ion-card class="login-card">
+      <ion-card-content>
+
+        <ion-item lines="none" class="custom-item">
+          <ion-icon name="mail-outline" slot="start"></ion-icon>
+
+          <ion-input
+            type="email"
+            placeholder="Correo electrónico"
+            [(ngModel)]="email">
+          </ion-input>
+        </ion-item>
+
+        <ion-item lines="none" class="custom-item">
+          <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+
+          <ion-input
+            type="password"
+            placeholder="Contraseña"
+            [(ngModel)]="password">
+          </ion-input>
+        </ion-item>
+
+        <ion-button
+          expand="block"
+          class="login-button"
+          (click)="register()">
+
+          Registrarse
+        </ion-button>
+
+      </ion-card-content>
+    </ion-card>
+
+    <div class="register-section">
+      <p>¿Ya tienes una cuenta?</p>
+
+      <ion-button
+        fill="clear"
+        class="register-button"
+        (click)="login()">
+
+        Inicia sesión
+      </ion-button>
+    </div>
+
+  </div>
+
+</ion-content>
