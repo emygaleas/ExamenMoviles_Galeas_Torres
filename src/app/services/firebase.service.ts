@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getFirestore, Firestore } from 'firebase/firestore';
-import { environment } from '../../environments/environment';
+import { environment } from '../environments/enviroment';
 
 @Injectable({
   providedIn: 'root'
