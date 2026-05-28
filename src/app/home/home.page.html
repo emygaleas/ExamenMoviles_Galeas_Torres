@@ -1,0 +1,337 @@
+<ion-header class="ion-no-border premium-header">
+  <ion-toolbar class="header-toolbar">
+    <div class="header-container">
+      <div class="logo-area">
+        <ion-icon name="sparkles" class="logo-icon"></ion-icon>
+        <span class="logo-title">Gadgets</span>
+      </div>
+
+      <div class="search-bar-container">
+        <ion-input placeholder="Buscar gadgets..." [value]="" (ionInput)="onSearchChange($event)"
+          class="custom-search-input">
+          <ion-icon slot="start" name="sparkles" class="search-icon"></ion-icon>
+        </ion-input>
+      </div>
+
+      <ion-button (click)="openAddModal()" class="add-gadget-btn" fill="clear">
+        <ion-icon slot="start" name="add"></ion-icon>
+        Nuevo
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="premium-content">
+  <div class="dashboard-wrapper">
+
+
+
+    <!-- Catálogo de Gadgets -->
+    <div class="catalog-section">
+      <div class="section-header">
+        <h2>Catálogo de Dispositivos</h2>
+        <span class="section-divider"></span>
+      </div>
+
+      <ion-grid class="ion-no-padding">
+        <ion-row>
+          <ion-col size="12" size-md="6" size-lg="4" *ngFor="let gadget of filteredGadgets$ | async"
+            class="col-animate">
+            <ion-card class="gadget-card" [class.active-playing]="(currentPlaying$ | async)?.id === gadget.id">
+
+              <!-- Imagen del Gadget con Acciones Superpuestas -->
+              <div class="card-image-container">
+                <img [src]="gadget.imageUrl" [alt]="gadget.name" class="gadget-img" />
+                <div class="card-gradient-overlay"></div>
+
+
+
+                <!-- Controles flotantes sobre la imagen (Editar y Eliminar) -->
+                <div class="card-actions-overlay">
+                  <ion-button (click)="openEditModal(gadget, $event)" class="edit-overlay-btn" fill="clear" size="small"
+                    title="Editar Gadget">
+                    <ion-icon name="pencil" slot="icon-only"></ion-icon>
+                  </ion-button>
+                  <ion-button (click)="deleteGadget(gadget.id, $event)" class="delete-overlay-btn" fill="clear"
+                    size="small" title="Eliminar Gadget">
+                    <ion-icon name="trash" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </div>
+
+                <!-- Botón flotante de reproducción en imagen -->
+                <div class="audio-control-overlay" (click)="playAudio(gadget, $event)">
+                  <div class="play-btn-circle"
+                    [class.playing]="(currentPlaying$ | async)?.id === gadget.id && (isPlaying$ | async)">
+                    <ion-icon
+                      [name]="((currentPlaying$ | async)?.id === gadget.id && (isPlaying$ | async)) ? 'pause' : 'play'"
+                      class="play-icon-center">
+                    </ion-icon>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Contenido de la Tarjeta -->
+              <ion-card-header>
+                <div class="title-row">
+                  <ion-card-title class="gadget-title">{{ gadget.name }}</ion-card-title>
+
+                  <!-- Animación de onda sonora si está reproduciendo este item -->
+                  <div class="sound-wave-mini"
+                    *ngIf="(currentPlaying$ | async)?.id === gadget.id && (isPlaying$ | async)">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+                <ion-card-subtitle class="gadget-date">
+                  Registrado el {{ gadget.createdAt | date:'dd/MM/yyyy, h:mm a' }}
+                </ion-card-subtitle>
+              </ion-card-header>
+
+              <ion-card-content class="gadget-desc">
+                <p>{{ gadget.description }}</p>
+
+                <div class="card-footer-actions">
+                  <ion-button (click)="openVideo(gadget)" class="watch-demo-btn" fill="outline" size="small">
+                    <ion-icon slot="start" name="film"></ion-icon>
+                    Ver Video
+                  </ion-button>
+
+                  <ion-button (click)="playAudio(gadget, $event)" class="listen-audio-btn" fill="clear" size="small">
+                    <ion-icon slot="start"
+                      [name]="((currentPlaying$ | async)?.id === gadget.id && (isPlaying$ | async)) ? 'pause' : 'play'"></ion-icon>
+                    {{ ((currentPlaying$ | async)?.id === gadget.id && (isPlaying$ | async)) ? 'Pausar Sonido' :
+                    'Escuchar Sonido' }}
+                  </ion-button>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+
+        <!-- Mensaje de lista vacía -->
+        <div class="empty-state" *ngIf="((filteredGadgets$ | async)?.length === 0)">
+          <h3>No se encontraron gadgets</h3>
+          <p>Prueba buscando con otro término o sube uno nuevo utilizando el botón "Nuevo".</p>
+        </div>
+      </ion-grid>
+    </div>
+
+  </div>
+
+  <!-- Barra de Reproducción Global Inferior (Sticky Audio Player) -->
+  <div class="global-audio-player" *ngIf="currentPlaying$ | async as activeGadget"
+    [class.player-visible]="activeGadget">
+    <div class="player-container">
+
+      <!-- Mini info -->
+      <div class="player-info">
+        <img [src]="activeGadget.imageUrl" class="player-thumb" />
+        <div class="player-text">
+          <span class="player-title">{{ activeGadget.name }}</span>
+          <span class="player-subtitle">Reproduciendo audio del gadget</span>
+        </div>
+      </div>
+
+      <!-- Controles Principales -->
+      <div class="player-controls">
+        <div class="controls-row">
+          <!-- Botón Play/Pause -->
+          <ion-button (click)="toggleGlobalPlay()" fill="clear" class="btn-play-pause-global">
+            <ion-icon [name]="(isPlaying$ | async) ? 'pause' : 'play'"></ion-icon>
+          </ion-button>
+
+          <!-- Barra de Progreso y Tiempos -->
+          <div class="progress-container">
+            <span class="time-label">{{ formatTime((currentTime$ | async) || 0) }}</span>
+            <ion-range [min]="0" [max]="(duration$ | async) || 0" [value]="(currentTime$ | async) || 0"
+              (ionInput)="onSeek($event)" class="player-seekbar">
+            </ion-range>
+            <span class="time-label">{{ formatTime((duration$ | async) || 0) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controles de Volumen y Visualización -->
+      <div class="player-utils">
+        <div class="volume-container">
+          <ion-icon name="volume-high" class="volume-icon"></ion-icon>
+          <ion-range [min]="0" [max]="100" [value]="((volume$ | async) || 0.8) * 100"
+            (ionInput)="onVolumeChange($event)" class="volume-range">
+          </ion-range>
+        </div>
+
+        <!-- Botón de parar todo -->
+        <ion-button (click)="gadgetService.stop()" fill="clear" class="btn-close-player" size="small">
+          <ion-icon name="close"></ion-icon>
+        </ion-button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal para ver el Video (YouTube/TikTok) -->
+  <ion-modal [isOpen]="isVideoModalOpen" (didDismiss)="closeVideo()" class="video-modal-view"
+    [class.tiktok-modal]="selectedVideoGadget?.videoUrl?.includes('tiktok')">
+    <ng-template>
+      <div class="modal-video-wrapper" *ngIf="selectedVideoGadget">
+
+        <div class="modal-video-header">
+          <div class="video-header-info">
+            <ion-icon name="film" class="video-hdr-icon"></ion-icon>
+            <h2>Demostración: {{ selectedVideoGadget.name }}</h2>
+          </div>
+          <ion-button (click)="closeVideo()" fill="clear" class="btn-close-modal">
+            <ion-icon name="close" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
+
+        <div class="video-frame-container" [class.tiktok-frame]="selectedVideoGadget.videoUrl.includes('tiktok')">
+          <!-- iFrame de video sanitizado directamente en la logica -->
+          <iframe [src]="selectedVideoSafeUrl" frameborder="0" scrolling="no" style="overflow: hidden;"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen class="video-iframe">
+          </iframe>
+        </div>
+
+        <div class="modal-video-footer">
+          <p>{{ selectedVideoGadget.description }}</p>
+          <div class="video-source-badge">
+            <ion-icon name="link"></ion-icon>
+            <span>Fuente: {{ selectedVideoGadget.videoUrl.includes('tiktok') ? 'TikTok Video' : 'YouTube Video'
+              }}</span>
+          </div>
+        </div>
+
+      </div>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Modal para Registrar Nuevo Gadget (Carga en Supabase Storage) -->
+  <ion-modal [isOpen]="isAddModalOpen" (didDismiss)="closeAddModal()" class="add-gadget-modal">
+    <ng-template>
+      <div class="modal-form-wrapper">
+
+        <div class="modal-form-header">
+          <div class="form-header-info">
+            <ion-icon name="sparkles" class="form-hdr-icon"></ion-icon>
+            <h2>{{ isEditMode ? 'Editar Gadget' : 'Registrar Nuevo Gadget' }}</h2>
+          </div>
+          <ion-button (click)="closeAddModal()" fill="clear" class="btn-close-modal" [disabled]="isUploading">
+            <ion-icon name="close" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
+
+        <div class="modal-form-content">
+
+          <ion-list lines="none" class="custom-list-form">
+            <!-- Nombre -->
+            <div class="form-group">
+              <ion-label class="form-lbl">Nombre *</ion-label>
+              <ion-input [(ngModel)]="newName" placeholder="Ej. Smart Glasses 3.0" class="form-txt-input"
+                [disabled]="isUploading">
+              </ion-input>
+            </div>
+
+            <!-- Descripción -->
+            <div class="form-group">
+              <ion-label class="form-lbl">Descripción</ion-label>
+              <ion-textarea [(ngModel)]="newDescription"
+                placeholder="Describe el funcionamiento del gadget o sus características..." rows="3"
+                class="form-txt-input textarea-input" [disabled]="isUploading">
+              </ion-textarea>
+            </div>
+
+            <!-- Link de Video -->
+            <div class="form-group">
+              <ion-label class="form-lbl">Link a Video (TikTok / YouTube) *</ion-label>
+              <ion-input [(ngModel)]="newVideoUrl" placeholder="https://www.tiktok.com/@.../video/..."
+                class="form-txt-input" [disabled]="isUploading">
+              </ion-input>
+            </div>
+
+            <!-- Carga de Imagen (Supabase Storage) -->
+            <div class="form-group upload-group">
+              <ion-label class="form-lbl">
+                Imagen del gadget * <span *ngIf="isEditMode" class="optional-lbl">(Opcional al editar)</span>
+              </ion-label>
+
+              <div class="upload-zone"
+                [class.file-loaded]="imageFile !== null || (isEditMode && editingGadget?.imageUrl)">
+                <input type="file" id="imageUploadInput" accept="image/*" (change)="onImageSelected($event)"
+                  class="hidden-file-input" [disabled]="isUploading" />
+                <label for="imageUploadInput" class="upload-zone-label">
+                  <div class="upload-icon-box">
+                    <ion-icon name="cloud-upload"></ion-icon>
+                  </div>
+                  <div class="upload-text-box">
+                    <span class="upload-primary-text">
+                      {{ imageFile ? 'Nueva fotografía seleccionada' : (isEditMode ? 'Fotografía actual cargada' :
+                      'Selecciona una imagen') }}
+                    </span>
+                    <span class="upload-secondary-text">
+                      {{ imageFile ? imageFileName : (isEditMode ? 'Haz clic para cambiar la imagen' : 'Formatos
+                      aceptados: PNG, JPG, JPEG, WEBP') }}
+                    </span>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Preview de imagen seleccionada -->
+              <div class="image-select-preview" *ngIf="imagePreviewUrl">
+                <img [src]="imagePreviewUrl" alt="Preview" />
+              </div>
+            </div>
+
+            <!-- Carga de Audio (Supabase Storage) -->
+            <div class="form-group upload-group">
+              <ion-label class="form-lbl">
+                Audio Demostrativo * <span *ngIf="isEditMode" class="optional-lbl">(Opcional al editar)</span>
+              </ion-label>
+
+              <div class="upload-zone sound-zone"
+                [class.file-loaded]="audioFile !== null || (isEditMode && editingGadget?.audioUrl)">
+                <input type="file" id="audioUploadInput" accept="audio/*" (change)="onAudioSelected($event)"
+                  class="hidden-file-input" [disabled]="isUploading" />
+                <label for="audioUploadInput" class="upload-zone-label">
+                  <div class="upload-icon-box sound-icon">
+                    <ion-icon name="musical-notes"></ion-icon>
+                  </div>
+                  <div class="upload-text-box">
+                    <span class="upload-primary-text">
+                      {{ audioFile ? 'Nuevo archivo de sonido seleccionado' : (isEditMode ? 'Sonido actual cargado' :
+                      'Selecciona el sonido') }}
+                    </span>
+                    <span class="upload-secondary-text">
+                      {{ audioFile ? audioFileName : (isEditMode ? 'Haz clic para cambiar el sonido' : 'Formatos
+                      aceptados: MP3, WAV, AAC, M4A') }}
+                    </span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+          </ion-list>
+        </div>
+
+        <!-- Indicador de carga -->
+        <div class="uploading-progress-panel" *ngIf="isUploading">
+          <ion-spinner name="crescent" class="progress-spinner"></ion-spinner>
+          <span class="progress-text">{{ uploadStatusMessage }}</span>
+        </div>
+
+        <div class="modal-form-footer">
+          <ion-button (click)="closeAddModal()" fill="clear" class="btn-cancel" [disabled]="isUploading">
+            Cancelar
+          </ion-button>
+          <ion-button (click)="saveGadget()" class="btn-save" [disabled]="isUploading">
+            <ion-icon slot="start" name="sparkles" *ngIf="!isUploading"></ion-icon>
+            {{ isEditMode ? 'Actualizar Gadget' : 'Subir y Guardar' }}
+          </ion-button>
+        </div>
+
+      </div>
+    </ng-template>
+  </ion-modal>
+
+</ion-content>
