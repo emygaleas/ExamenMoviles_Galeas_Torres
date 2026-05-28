@@ -4,22 +4,20 @@ import { FormsModule } from '@angular/forms';
 import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import {
   IonHeader, IonToolbar, IonContent, IonGrid, IonRow, IonCol,
   IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,
-  IonButton, IonIcon, IonRange, IonInput, IonTextarea,
-  IonModal, IonLabel, IonList, IonSpinner
+  IonButton, IonIcon, IonInput, IonTextarea,
+  IonModal, IonLabel, IonList, IonSpinner, IonSelect, IonSelectOption
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  play, pause, volumeHigh, volumeMute, add, close,
-  cloudUpload, trash, film, sparkles, link, musicalNotes, checkmarkCircle,
-  pencil
+  add, close, trash, sparkles, pencil, person, gameController,
+  hardwareChip, albums, chatbubbleEllipses, calendar, search, location
 } from 'ionicons/icons';
 
-import { GadgetService, Gadget } from '../services/gadget.service';
-import { SupabaseService } from '../services/supabase.service';
+import { GadgetService, Videojuego } from '../services/gadget.service';
 
 @Component({
   selector: 'app-home',
@@ -29,171 +27,131 @@ import { SupabaseService } from '../services/supabase.service';
   imports: [
     CommonModule, FormsModule, IonHeader, IonToolbar, IonContent, IonGrid, IonRow, IonCol,
     IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,
-    IonButton, IonIcon, IonRange, IonInput, IonTextarea,
-    IonModal, IonLabel, IonList, IonSpinner
+    IonButton, IonIcon, IonInput, IonTextarea,
+    IonModal, IonLabel, IonList, IonSpinner, IonSelect, IonSelectOption
   ]
 })
 export class HomePage implements OnInit {
-  // Observables para el estado del reproductor
-  currentPlaying$: Observable<Gadget | null>;
-  isPlaying$: Observable<boolean>;
-  currentTime$: Observable<number>;
-  duration$: Observable<number>;
-  volume$: Observable<number>;
-
-  // Listado filtrable de gadgets
-  filteredGadgets$!: Observable<Gadget[]>;
+  // Listado de videojuegos registrados en la Base de Datos
+  filteredGadgets$!: Observable<Videojuego[]>;
   private searchSubject = new BehaviorSubject<string>('');
 
   // Modales
   isAddModalOpen = false;
-  isVideoModalOpen = false;
-  selectedVideoGadget: Gadget | null = null;
-  selectedVideoSafeUrl: SafeResourceUrl | null = null;
+  editingGadget: Videojuego | null = null;
   isEditMode = false;
-  editingGadget: Gadget | null = null;
 
-  // Formulario para nuevo gadget
-  newName = '';
-  newDescription = '';
-  newVideoUrl = '';
-  imageFile: File | null = null;
-  audioFile: File | null = null;
+  // Formulario para registrar encuesta de videojuego
+  personaNombre = '';
+  personaEdad = '';
+  personaRol = '';
+  personaUbicacion = '';
+  videojuegoFavorito = '';
+  plataforma = '';
+  generoFavorito = '';
+  comentario = '';
+  imageUrl = ''; // Se obtiene automáticamente de la API
 
-  // Previews e información de carga
-  imagePreviewUrl: string | null = null;
-  audioFileName = '';
-  imageFileName = '';
+  // Búsqueda GLOBAL en la API de FreeToGame (desde el buscador del Header)
+  apiSearchQueryGlobal = '';
+  apiSearchResultsGlobal: any[] = [];
+  isSearchingAPIGlobal = false;
+
+  // Búsqueda LOCAL dentro del modal de registro
+  apiSearchQuery = '';
+  apiSearchResults: any[] = [];
+  selectedGameDetails: any = null; // Ficha técnica completa del juego seleccionado
+  isSearchingAPI = false;
+
+  // Carga
   isUploading = false;
   uploadStatusMessage = '';
 
-  // Estado local para evitar usar async pipe en eventos click
-  isPlayingLocal = false;
+  // Recurso por defecto por seguridad
+  defaultImage = 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=800&q=80';
 
   constructor(
     public gadgetService: GadgetService,
-    private supabaseService: SupabaseService,
     private sanitizer: DomSanitizer
   ) {
-    // Registrar iconos standalone para usarlos con <ion-icon>
+    // Registrar iconos standalone necesarios
     addIcons({
-      play, pause, volumeHigh, volumeMute, add, close,
-      cloudUpload, trash, film, sparkles, link, musicalNotes, checkmarkCircle,
-      pencil
-    });
-
-    this.currentPlaying$ = this.gadgetService.currentPlaying$;
-    this.isPlaying$ = this.gadgetService.isPlaying$;
-    this.currentTime$ = this.gadgetService.currentTime$;
-    this.duration$ = this.gadgetService.duration$;
-    this.volume$ = this.gadgetService.volume$;
-
-    // Suscribirse para tener una copia sincrónica del estado de reproducción
-    this.isPlaying$.subscribe(playing => {
-      this.isPlayingLocal = playing;
+      add, close, trash, sparkles, pencil, person, gameController,
+      hardwareChip, albums, chatbubbleEllipses, calendar, search, location
     });
   }
 
   ngOnInit() {
-    // Configurar el buscador reactivo combinando el listado con el filtro de texto
-    this.filteredGadgets$ = combineLatest([
-      this.gadgetService.gadgets$,
-      this.searchSubject
-    ]).pipe(
-      map(([gadgets, search]) => {
-        if (!search.trim()) return gadgets;
-        const term = search.toLowerCase().trim();
-        return gadgets.filter(g =>
-          g.name.toLowerCase().includes(term) ||
-          g.description.toLowerCase().includes(term)
-        );
-      })
-    );
+    // La base de datos sólo lista y almacena los registros de forma directa
+    this.filteredGadgets$ = this.gadgetService.gadgets$;
   }
 
   /**
-   * Actualiza el término de búsqueda.
+   * Realiza la búsqueda de videojuegos directamente en la API de FreeToGame,
+   * sin consultar la base de datos (donde solo se guardan los registros).
    */
-  onSearchChange(event: any) {
+  async onSearchChange(event: any) {
     const value = event?.target?.value || '';
-    this.searchSubject.next(value);
-  }
+    this.apiSearchQueryGlobal = value.trim();
 
-  /**
-   * Alterna la reproducción de un gadget directamente desde su tarjeta.
-   */
-  playAudio(gadget: Gadget, event: Event) {
-    event.stopPropagation(); // Evitar comportamientos no deseados en la tarjeta
-    this.gadgetService.toggleAudio(gadget);
-  }
+    if (!this.apiSearchQueryGlobal) {
+      this.apiSearchResultsGlobal = [];
+      return;
+    }
 
-  /**
-   * Pausa/Reanuda el reproductor global.
-   */
-  toggleGlobalPlay() {
-    if (this.isPlayingLocal) {
-      this.gadgetService.pause();
-    } else {
-      this.gadgetService.resume();
+    try {
+      this.isSearchingAPIGlobal = true;
+      const term = this.apiSearchQueryGlobal.toLowerCase();
+
+      // Consultar todos los juegos en la API a través de corsproxy
+      const response = await fetch(`https://corsproxy.io/?https://www.freetogame.com/api/games`);
+      if (response.ok) {
+        const allGames: any[] = await response.json();
+        // Filtrar coincidencias
+        this.apiSearchResultsGlobal = allGames.filter(g =>
+          g.title.toLowerCase().includes(term) ||
+          g.genre.toLowerCase().includes(term) ||
+          g.platform.toLowerCase().includes(term)
+        ).slice(0, 9); // Mostrar hasta 9 resultados sugeridos en grilla
+      }
+    } catch (e) {
+      console.error('Error al realizar búsqueda global en FreeToGame API:', e);
+    } finally {
+      this.isSearchingAPIGlobal = false;
     }
   }
 
   /**
-   * Cambia la posición del track.
+   * Abre el modal y pre-carga la información técnica completa de un juego buscado en la API global.
    */
-  onSeek(event: any) {
-    const value = event?.detail?.value;
-    if (value !== undefined) {
-      this.gadgetService.seek(value);
-    }
+  async registerSurveyForGame(gameId: number) {
+    this.resetForm();
+    this.isEditMode = false;
+    this.editingGadget = null;
+    this.isAddModalOpen = true;
+
+    // Obtener los detalles completos del juego
+    await this.selectGameFromAPI(gameId);
   }
 
   /**
-   * Ajusta el volumen.
-   */
-  onVolumeChange(event: any) {
-    const value = event?.detail?.value;
-    if (value !== undefined) {
-      this.gadgetService.setVolume(value / 100);
-    }
-  }
-
-  /**
-   * Elimina un gadget.
+   * Elimina un registro de la encuesta de la Base de Datos.
    */
   async deleteGadget(id: string, event: Event) {
     event.stopPropagation();
-    if (confirm('¿Estás seguro de eliminar este gadget de tu catálogo?')) {
+    if (confirm('¿Estás seguro de eliminar este registro de encuesta de videojuegos?')) {
       try {
         await this.gadgetService.deleteGadget(id);
-        alert('¡Gadget eliminado exitosamente!');
+        alert('¡Encuesta eliminada exitosamente!');
       } catch (err) {
-        console.error('Error al eliminar gadget:', err);
-        alert('Hubo un error al eliminar el gadget de la base de datos.');
+        console.error('Error al eliminar encuesta:', err);
+        alert('Hubo un error al eliminar el registro en Firestore.');
       }
     }
   }
 
   /**
-   * Abre el modal para visualizar el video del gadget.
-   */
-  openVideo(gadget: Gadget) {
-    this.selectedVideoGadget = gadget;
-    this.selectedVideoSafeUrl = this.getSafeEmbedUrl(gadget.videoUrl);
-    this.isVideoModalOpen = true;
-  }
-
-  /**
-   * Cierra el modal de video.
-   */
-  closeVideo() {
-    this.isVideoModalOpen = false;
-    this.selectedVideoGadget = null;
-    this.selectedVideoSafeUrl = null;
-  }
-
-  /**
-   * Abre el modal para registrar un nuevo gadget.
+   * Abre el modal para registrar una nueva encuesta manualmente.
    */
   openAddModal() {
     this.resetForm();
@@ -203,130 +161,203 @@ export class HomePage implements OnInit {
   }
 
   /**
-   * Abre el modal en modo edición precargando los datos del gadget.
+   * Abre el modal en modo edición de la encuesta.
    */
-  openEditModal(gadget: Gadget, event: Event) {
+  openEditModal(videojuego: Videojuego, event: Event) {
     event.stopPropagation();
     this.resetForm();
     this.isEditMode = true;
-    this.editingGadget = gadget;
+    this.editingGadget = videojuego;
 
     // Precargar campos del formulario
-    this.newName = gadget.name;
-    this.newDescription = gadget.description;
-    this.newVideoUrl = gadget.videoUrl;
-    // La imagen no se carga como archivo, pero mostramos el preview actual
-    this.imagePreviewUrl = gadget.imageUrl;
+    this.personaNombre = videojuego.nombre;
+    this.personaEdad = videojuego.edad;
+    this.personaRol = videojuego.rol;
+    this.personaUbicacion = videojuego.ubicacion;
+    this.videojuegoFavorito = videojuego.videojuegoFavorito;
+    this.plataforma = videojuego.plataforma;
+    this.generoFavorito = videojuego.generoFavorito;
+    this.comentario = videojuego.comentario;
+    this.imageUrl = videojuego.imageUrl;
 
     this.isAddModalOpen = true;
   }
 
   /**
-   * Cierra el modal de registro de gadget.
+   * Cierra el modal de registro.
    */
   closeAddModal() {
     this.isAddModalOpen = false;
   }
 
   /**
-   * Maneja la selección del archivo de imagen.
+   * Busca videojuegos en la lista completa de la API de FreeToGame dentro del modal.
    */
-  onImageSelected(event: any) {
-    const file = event?.target?.files?.[0];
-    if (file) {
-      this.imageFile = file;
-      this.imageFileName = file.name;
-      // Generar preview local
-      this.imagePreviewUrl = URL.createObjectURL(file);
-    }
-  }
-
-  /**
-   * Maneja la selección del archivo de audio.
-   */
-  onAudioSelected(event: any) {
-    const file = event?.target?.files?.[0];
-    if (file) {
-      this.audioFile = file;
-      this.audioFileName = file.name;
-    }
-  }
-
-  /**
-   * Guarda el gadget (registra o actualiza) subiendo los archivos modificados a Supabase.
-   */
-  async saveGadget() {
-    // Validaciones básicas
-    if (!this.newName.trim()) {
-      alert('Por favor, ingresa el nombre del gadget.');
+  async searchGamesOnAPI() {
+    if (!this.apiSearchQuery.trim()) {
+      alert('Por favor, ingresa el nombre de un videojuego a buscar.');
       return;
     }
 
-    // Los archivos son requeridos únicamente en modo creación
-    if (!this.isEditMode) {
-      if (!this.imageFile) {
-        alert('Por favor, selecciona una imagen para el gadget.');
-        return;
+    try {
+      this.isSearchingAPI = true;
+      this.apiSearchResults = [];
+      const queryStr = this.apiSearchQuery.trim().toLowerCase();
+
+      const response = await fetch(`https://corsproxy.io/?https://www.freetogame.com/api/games`);
+      if (!response.ok) {
+        throw new Error('No se pudo conectar con la API de FreeToGame');
       }
-      if (!this.audioFile) {
-        alert('Por favor, selecciona un sonido para el gadget.');
-        return;
+
+      const allGames: any[] = await response.json();
+      this.apiSearchResults = allGames.filter(g =>
+        g.title.toLowerCase().includes(queryStr)
+      ).slice(0, 5);
+
+      if (this.apiSearchResults.length === 0) {
+        alert('🔍 No se encontraron videojuegos con ese nombre en la API.');
       }
+    } catch (error) {
+      console.error('Error al buscar videojuegos en la API:', error);
+      alert('⚠️ Hubo un error de conexión al consultar la base de datos de videojuegos.');
+    } finally {
+      this.isSearchingAPI = false;
+    }
+  }
+
+  /**
+   * Selecciona un videojuego y realiza una segunda consulta a la API para traer toda su información directa.
+   * Endpoint usado: https://www.freetogame.com/api/game?id={id}
+   */
+  async selectGameFromAPI(gameId: number) {
+    try {
+      this.isSearchingAPI = true;
+      this.uploadStatusMessage = 'Obteniendo ficha técnica completa del videojuego...';
+
+      const response = await fetch(`https://corsproxy.io/?https://www.freetogame.com/api/game?id=${gameId}`);
+      if (!response.ok) {
+        throw new Error('No se pudo obtener el detalle del videojuego');
+      }
+
+      const gameData = await response.json();
+      this.selectedGameDetails = gameData;
+
+      // Rellenar automáticamente los campos de la encuesta
+      this.videojuegoFavorito = gameData.title;
+      this.imageUrl = gameData.thumbnail;
+      this.comentario = gameData.short_description || '';
+
+      // Mapear género
+      const rawGenre = (gameData.genre || '').toLowerCase();
+      if (rawGenre.includes('shooter') || rawGenre.includes('fight') || rawGenre.includes('action')) {
+        this.generoFavorito = 'Acción';
+      } else if (rawGenre.includes('strategy') || rawGenre.includes('moba') || rawGenre.includes('card')) {
+        this.generoFavorito = 'Estrategia';
+      } else if (rawGenre.includes('sport') || rawGenre.includes('race') || rawGenre.includes('racing')) {
+        this.generoFavorito = 'Deportes';
+      } else if (rawGenre.includes('rpg') || rawGenre.includes('mmorpg') || rawGenre.includes('role')) {
+        this.generoFavorito = 'RPG';
+      } else if (rawGenre.includes('horror') || rawGenre.includes('terror')) {
+        this.generoFavorito = 'Terror';
+      } else if (rawGenre.includes('sim')) {
+        this.generoFavorito = 'Simulación';
+      } else if (rawGenre.includes('adventure')) {
+        this.generoFavorito = 'Aventura';
+      } else {
+        this.generoFavorito = 'Otro';
+      }
+
+      // Mapear plataforma
+      const rawPlatform = (gameData.platform || '').toLowerCase();
+      if (rawPlatform.includes('pc') || rawPlatform.includes('windows')) {
+        this.plataforma = 'PC';
+      } else if (rawPlatform.includes('browser') || rawPlatform.includes('web')) {
+        this.plataforma = 'Navegador';
+      } else {
+        this.plataforma = 'Consola';
+      }
+
+      this.apiSearchResults = [];
+      this.apiSearchQuery = '';
+    } catch (error) {
+      console.error('Error al obtener detalle del videojuego:', error);
+      alert('⚠️ Hubo un error de conexión al cargar la información detallada del juego.');
+    } finally {
+      this.isSearchingAPI = false;
+      this.uploadStatusMessage = '';
+    }
+  }
+
+  /**
+   * Guarda la encuesta en Firestore.
+   */
+  async saveGadget() {
+    if (!this.personaNombre.trim()) {
+      alert('Por favor, ingresa tu nombre o alias.');
+      return;
+    }
+    if (!this.personaEdad) {
+      alert('Por favor, selecciona tu rango de edad.');
+      return;
+    }
+    if (!this.personaRol) {
+      alert('Por favor, selecciona tu rol.');
+      return;
+    }
+    if (!this.personaUbicacion.trim()) {
+      alert('Por favor, selecciona o ingresa tu ubicación.');
+      return;
+    }
+    if (!this.videojuegoFavorito.trim()) {
+      alert('Por favor, busca y selecciona un videojuego.');
+      return;
     }
 
     try {
       this.isUploading = true;
+      this.uploadStatusMessage = 'Conectando con Firestore...';
 
-      // 1. Subir la imagen si se seleccionó una nueva
-      let imageUrl = this.editingGadget?.imageUrl || '';
-      if (this.imageFile) {
-        this.uploadStatusMessage = this.isEditMode 
-          ? 'Subiendo nueva fotografía a Supabase...' 
-          : '1/2: Subiendo fotografía a Supabase Storage...';
-        imageUrl = await this.supabaseService.uploadFile(this.imageFile, 'images');
-      }
+      const finalImageUrl = this.imageUrl.trim() || this.defaultImage;
 
-      // 2. Subir el audio si se seleccionó uno nuevo
-      let audioUrl = this.editingGadget?.audioUrl || '';
-      if (this.audioFile) {
-        this.uploadStatusMessage = this.isEditMode 
-          ? 'Subiendo nuevo archivo de sonido a Supabase...' 
-          : '2/2: Subiendo archivo de sonido a Supabase Storage...';
-        audioUrl = await this.supabaseService.uploadFile(this.audioFile, 'sounds');
-      }
-
-      // 3. Guardar datos en el listado
       if (this.isEditMode && this.editingGadget) {
-        this.uploadStatusMessage = 'Actualizando datos del gadget...';
-        await this.gadgetService.updateGadget(this.editingGadget.id, {
-          name: this.newName,
-          description: this.newDescription,
-          imageUrl: imageUrl,
-          audioUrl: audioUrl,
-          videoUrl: this.newVideoUrl || 'https://www.youtube.com/watch?v=5V9H1S62Uj8'
+        this.uploadStatusMessage = 'Actualizando encuesta en Firestore...';
+        await this.gadgetService.updateGadget(this.editingGadget.id!, {
+          nombre: this.personaNombre,
+          edad: this.personaEdad,
+          rol: this.personaRol,
+          ubicacion: this.personaUbicacion,
+          videojuegoFavorito: this.videojuegoFavorito,
+          plataforma: this.plataforma,
+          generoFavorito: this.generoFavorito,
+          comentario: this.comentario,
+          imageUrl: finalImageUrl
         });
-        alert('¡Gadget actualizado exitosamente!');
+        alert('¡Encuesta actualizada exitosamente!');
       } else {
-        this.uploadStatusMessage = 'Guardando datos del gadget...';
+        this.uploadStatusMessage = 'Guardando encuesta en Firestore...';
         await this.gadgetService.addGadget({
-          name: this.newName,
-          description: this.newDescription,
-          imageUrl: imageUrl,
-          audioUrl: audioUrl,
-          videoUrl: this.newVideoUrl || 'https://www.youtube.com/watch?v=5V9H1S62Uj8'
+          nombre: this.personaNombre,
+          edad: this.personaEdad,
+          rol: this.personaRol,
+          ubicacion: this.personaUbicacion,
+          videojuegoFavorito: this.videojuegoFavorito,
+          plataforma: this.plataforma,
+          generoFavorito: this.generoFavorito,
+          comentario: this.comentario,
+          imageUrl: finalImageUrl,
+          createdAt: Date.now()
         });
-        alert('¡Gadget agregado exitosamente en Supabase Database!');
+        alert('¡Encuesta registrada exitosamente en Firebase Firestore!');
       }
 
-      // Finalizar
       this.isUploading = false;
       this.isAddModalOpen = false;
       this.resetForm();
     } catch (e: any) {
       this.isUploading = false;
       this.uploadStatusMessage = '';
-      console.error('Error al guardar gadget:', e);
-      alert('Hubo un error al subir los archivos o conectar con Supabase. Verifica tu conexión e inténtalo de nuevo.');
+      console.error('Error al guardar encuesta:', e);
+      alert('Hubo un error al conectar con Firebase Firestore.');
     }
   }
 
@@ -334,63 +365,23 @@ export class HomePage implements OnInit {
    * Limpia los estados del formulario.
    */
   private resetForm() {
-    this.newName = '';
-    this.newDescription = '';
-    this.newVideoUrl = '';
-    this.imageFile = null;
-    this.audioFile = null;
-    this.imagePreviewUrl = null;
-    this.imageFileName = '';
-    this.audioFileName = '';
+    this.personaNombre = '';
+    this.personaEdad = '';
+    this.personaRol = '';
+    this.personaUbicacion = '';
+    this.videojuegoFavorito = '';
+    this.plataforma = '';
+    this.generoFavorito = '';
+    this.comentario = '';
+    this.imageUrl = '';
+
+    this.apiSearchQuery = '';
+    this.apiSearchResults = [];
+    this.selectedGameDetails = null;
     this.isUploading = false;
+    this.isSearchingAPI = false;
     this.uploadStatusMessage = '';
     this.isEditMode = false;
     this.editingGadget = null;
-  }
-
-  /**
-   * Formatea un número de segundos en formato mm:ss.
-   */
-  formatTime(seconds: number): string {
-    if (isNaN(seconds) || seconds === null) return '00:00';
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  }
-
-  /**
-   * Procesa la URL de video (YouTube o TikTok) para generar una URL segura embebida.
-   */
-  private getSafeEmbedUrl(url: string): SafeResourceUrl {
-    if (!url) {
-      return this.sanitizer.bypassSecurityTrustResourceUrl('');
-    }
-
-    let embedUrl = url;
-
-    try {
-      if (url.includes('youtube.com/watch')) {
-        const urlObj = new URL(url);
-        const videoId = urlObj.searchParams.get('v');
-        if (videoId) {
-          embedUrl = `https://www.youtube.com/embed/${videoId}`;
-        }
-      } else if (url.includes('youtu.be/')) {
-        const parts = url.split('youtu.be/');
-        if (parts.length > 1) {
-          const videoId = parts[1].split('?')[0];
-          embedUrl = `https://www.youtube.com/embed/${videoId}`;
-        }
-      } else if (url.includes('tiktok.com/') && url.includes('/video/')) {
-        const match = url.match(/\/video\/(\d+)/);
-        if (match && match[1]) {
-          embedUrl = `https://www.tiktok.com/embed/v2/${match[1]}`;
-        }
-      }
-    } catch (e) {
-      console.error('Error al parsear URL de video:', e);
-    }
-
-    return this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
   }
 }

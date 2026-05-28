@@ -2,12 +2,16 @@
   <ion-toolbar class="header-toolbar">
     <div class="header-container">
       <div class="logo-area">
-        <ion-icon name="sparkles" class="logo-icon"></ion-icon>
-        <span class="logo-title">Gadgets</span>
+        <ion-icon name="game-controller" class="logo-icon"></ion-icon>
+        <div class="logo-text-wrapper">
+          <span class="logo-title">GamerSurvey</span>
+          <span class="logo-subtitle">COMUNIDAD EPN</span>
+        </div>
       </div>
 
       <div class="search-bar-container">
-        <ion-input placeholder="Buscar gadgets..." [value]="" (ionInput)="onSearchChange($event)"
+        <!-- Buscador Global conectado a la API de FreeToGame -->
+        <ion-input placeholder="Buscar videojuegos en FreeToGame API..." [value]="" (ionInput)="onSearchChange($event)"
           class="custom-search-input">
           <ion-icon slot="start" name="sparkles" class="search-icon"></ion-icon>
         </ion-input>
@@ -15,7 +19,7 @@
 
       <ion-button (click)="openAddModal()" class="add-gadget-btn" fill="clear">
         <ion-icon slot="start" name="add"></ion-icon>
-        Nuevo
+        Nueva Encuesta
       </ion-button>
     </div>
   </ion-toolbar>
@@ -24,84 +28,69 @@
 <ion-content [fullscreen]="true" class="premium-content">
   <div class="dashboard-wrapper">
 
+    <!-- Hero Section -->
+    <div class="hero-section">
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <div class="supabase-status-badge">
+          <ion-icon name="checkmark-circle" class="status-icon"></ion-icon>
+          <span>Firestore Engine & FreeToGame API Active</span>
+        </div>
+        <h1>Encuesta de Videojuegos</h1>
+        <p>
+          Registra tus hábitos de juego en la politécnica. ¡Usa la barra de búsqueda de arriba para explorar juegos en la API global y registrar tu opinión sobre ellos, o revisa las encuestas ya realizadas abajo!
+        </p>
+      </div>
+    </div>
 
-
-    <!-- Catálogo de Gadgets -->
-    <div class="catalog-section">
+    <!-- 1. VISTA DE BÚSQUEDA GLOBAL DE LA API DE VIDEOCONSOLAS (Cuando se escribe algo en el buscador) -->
+    <div class="catalog-section animate-fade" *ngIf="apiSearchQueryGlobal">
       <div class="section-header">
-        <h2>Catálogo de Dispositivos</h2>
+        <h2>Resultados de Búsqueda en la API ("{{ apiSearchQueryGlobal }}")</h2>
         <span class="section-divider"></span>
       </div>
 
-      <ion-grid class="ion-no-padding">
+      <!-- Spinner asíncrono para excelente retroalimentación UX -->
+      <div class="api-global-spinner-container" *ngIf="isSearchingAPIGlobal">
+        <ion-spinner name="crescent" class="global-spinner"></ion-spinner>
+        <p class="spinner-lbl">Consultando base de datos de videojuegos de FreeToGame...</p>
+      </div>
+
+      <!-- Grilla de resultados de la API -->
+      <ion-grid class="ion-no-padding" *ngIf="!isSearchingAPIGlobal">
         <ion-row>
-          <ion-col size="12" size-md="6" size-lg="4" *ngFor="let gadget of filteredGadgets$ | async"
+          <ion-col size="12" size-md="6" size-lg="4" *ngFor="let game of apiSearchResultsGlobal"
             class="col-animate">
-            <ion-card class="gadget-card" [class.active-playing]="(currentPlaying$ | async)?.id === gadget.id">
-
-              <!-- Imagen del Gadget con Acciones Superpuestas -->
+            <ion-card class="gadget-card api-result-card">
               <div class="card-image-container">
-                <img [src]="gadget.imageUrl" [alt]="gadget.name" class="gadget-img" />
+                <img [src]="game.thumbnail" [alt]="game.title" class="gadget-img" />
                 <div class="card-gradient-overlay"></div>
-
-
-
-                <!-- Controles flotantes sobre la imagen (Editar y Eliminar) -->
-                <div class="card-actions-overlay">
-                  <ion-button (click)="openEditModal(gadget, $event)" class="edit-overlay-btn" fill="clear" size="small"
-                    title="Editar Gadget">
-                    <ion-icon name="pencil" slot="icon-only"></ion-icon>
-                  </ion-button>
-                  <ion-button (click)="deleteGadget(gadget.id, $event)" class="delete-overlay-btn" fill="clear"
-                    size="small" title="Eliminar Gadget">
-                    <ion-icon name="trash" slot="icon-only"></ion-icon>
-                  </ion-button>
-                </div>
-
-                <!-- Botón flotante de reproducción en imagen -->
-                <div class="audio-control-overlay" (click)="playAudio(gadget, $event)">
-                  <div class="play-btn-circle"
-                    [class.playing]="(currentPlaying$ | async)?.id === gadget.id && (isPlaying$ | async)">
-                    <ion-icon
-                      [name]="((currentPlaying$ | async)?.id === gadget.id && (isPlaying$ | async)) ? 'pause' : 'play'"
-                      class="play-icon-center">
-                    </ion-icon>
-                  </div>
-                </div>
               </div>
 
-              <!-- Contenido de la Tarjeta -->
               <ion-card-header>
-                <div class="title-row">
-                  <ion-card-title class="gadget-title">{{ gadget.name }}</ion-card-title>
-
-                  <!-- Animación de onda sonora si está reproduciendo este item -->
-                  <div class="sound-wave-mini"
-                    *ngIf="(currentPlaying$ | async)?.id === gadget.id && (isPlaying$ | async)">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                </div>
-                <ion-card-subtitle class="gadget-date">
-                  Registrado el {{ gadget.createdAt | date:'dd/MM/yyyy, h:mm a' }}
-                </ion-card-subtitle>
+                <ion-card-title class="gadget-title">{{ game.title }}</ion-card-title>
+                <ion-card-subtitle class="gadget-date">Videojuego de la API</ion-card-subtitle>
               </ion-card-header>
 
               <ion-card-content class="gadget-desc">
-                <p>{{ gadget.description }}</p>
+                <!-- Chips de Metadatos -->
+                <div class="meta-chips-grid">
+                  <span class="survey-chip chip-genre">
+                    <ion-icon name="albums"></ion-icon>
+                    {{ game.genre }}
+                  </span>
+                  <span class="survey-chip chip-platform">
+                    <ion-icon name="hardware-chip"></ion-icon>
+                    {{ game.platform }}
+                  </span>
+                </div>
+
+                <p class="comment-text-api">"{{ game.short_description }}"</p>
 
                 <div class="card-footer-actions">
-                  <ion-button (click)="openVideo(gadget)" class="watch-demo-btn" fill="outline" size="small">
-                    <ion-icon slot="start" name="film"></ion-icon>
-                    Ver Video
-                  </ion-button>
-
-                  <ion-button (click)="playAudio(gadget, $event)" class="listen-audio-btn" fill="clear" size="small">
-                    <ion-icon slot="start"
-                      [name]="((currentPlaying$ | async)?.id === gadget.id && (isPlaying$ | async)) ? 'pause' : 'play'"></ion-icon>
-                    {{ ((currentPlaying$ | async)?.id === gadget.id && (isPlaying$ | async)) ? 'Pausar Sonido' :
-                    'Escuchar Sonido' }}
+                  <ion-button (click)="registerSurveyForGame(game.id)" class="btn-save fill-register-btn" fill="solid" size="small">
+                    <ion-icon slot="start" name="sparkles"></ion-icon>
+                    Registrar Encuesta
                   </ion-button>
                 </div>
               </ion-card-content>
@@ -109,105 +98,112 @@
           </ion-col>
         </ion-row>
 
-        <!-- Mensaje de lista vacía -->
+        <!-- Mensaje de no resultados en la API -->
+        <div class="empty-state" *ngIf="apiSearchResultsGlobal.length === 0">
+          <ion-icon name="search" class="empty-icon"></ion-icon>
+          <h3>Sin coincidencias en la API</h3>
+          <p>No encontramos videojuegos gratuitos que coincidan con "{{ apiSearchQueryGlobal }}". Intenta con otro término.</p>
+        </div>
+      </ion-grid>
+    </div>
+
+    <!-- 2. VISTA POR DEFECTO: CATÁLOGO DE ENCUESTAS GUARDADAS EN LA BASE DE DATOS (Cuando el buscador está vacío) -->
+    <div class="catalog-section" *ngIf="!apiSearchQueryGlobal">
+      <div class="section-header">
+        <h2>Respuestas Guardadas (Base de Datos)</h2>
+        <span class="section-divider"></span>
+      </div>
+
+      <ion-grid class="ion-no-padding">
+        <ion-row>
+          <ion-col size="12" size-md="6" size-lg="4" *ngFor="let game of filteredGadgets$ | async"
+            class="col-animate">
+            <ion-card class="gadget-card">
+
+              <!-- Portada del Videojuego -->
+              <div class="card-image-container">
+                <img [src]="game.imageUrl" [alt]="game.videojuegoFavorito" class="gadget-img" />
+                <div class="card-gradient-overlay"></div>
+
+                <!-- Controles de Edición y Eliminación -->
+                <div class="card-actions-overlay">
+                  <ion-button (click)="openEditModal(game, $event)" class="edit-overlay-btn" fill="clear" size="small"
+                    title="Editar Encuesta">
+                    <ion-icon name="pencil" slot="icon-only"></ion-icon>
+                  </ion-button>
+                  <ion-button (click)="deleteGadget(game.id!, $event)" class="delete-overlay-btn" fill="clear"
+                    size="small" title="Eliminar Encuesta">
+                    <ion-icon name="trash" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </div>
+              </div>
+
+              <!-- Cabecera de la Tarjeta con Alias, Juego, Ubicación y Fecha -->
+              <ion-card-header>
+                <div class="title-row">
+                  <div class="game-title-container">
+                    <ion-card-title class="gadget-title">{{ game.videojuegoFavorito }}</ion-card-title>
+                    <div class="respondent-info-row">
+                      <span class="respondent-alias">Por: {{ game.nombre }}</span>
+                      
+                      <!-- Insignia de Ubicación -->
+                      <div class="respondent-location">
+                        <ion-icon name="location" class="location-badge-mini-icon"></ion-icon>
+                        <span>{{ game.ubicacion }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <ion-card-subtitle class="gadget-date">
+                  <ion-icon name="calendar" style="margin-right: 4px; vertical-align: middle;"></ion-icon>
+                  {{ game.createdAt | date:'dd/MM/yyyy, h:mm a' }}
+                </ion-card-subtitle>
+              </ion-card-header>
+
+              <!-- Contenido de la Tarjeta con Chips de Metadatos y Opinión -->
+              <ion-card-content class="gadget-desc">
+                <!-- Chips de Categoría Metadatos -->
+                <div class="meta-chips-grid">
+                  <span class="survey-chip chip-genre">
+                    <ion-icon name="albums"></ion-icon>
+                    {{ game.generoFavorito }}
+                  </span>
+                  <span class="survey-chip chip-platform">
+                    <ion-icon name="hardware-chip"></ion-icon>
+                    {{ game.plataforma }}
+                  </span>
+                  <span class="survey-chip chip-rol">
+                    <ion-icon name="person"></ion-icon>
+                    {{ game.rol }}
+                  </span>
+                  <span class="survey-chip chip-age">
+                    {{ game.edad }}
+                  </span>
+                </div>
+
+                <!-- Comentario Breve -->
+                <div class="comment-callout" *ngIf="game.comentario">
+                  <ion-icon name="chatbubble-ellipses" class="quote-icon"></ion-icon>
+                  <p class="comment-text">"{{ game.comentario }}"</p>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+
+        <!-- Mensaje de lista vacía en Base de Datos -->
         <div class="empty-state" *ngIf="((filteredGadgets$ | async)?.length === 0)">
-          <h3>No se encontraron gadgets</h3>
-          <p>Prueba buscando con otro término o sube uno nuevo utilizando el botón "Nuevo".</p>
+          <ion-icon name="game-controller" class="empty-icon"></ion-icon>
+          <h3>Sin encuestas guardadas</h3>
+          <p>Usa el buscador de arriba para encontrar juegos o presiona "Nueva Encuesta" para registrar una manualmente.</p>
         </div>
       </ion-grid>
     </div>
 
   </div>
 
-  <!-- Barra de Reproducción Global Inferior (Sticky Audio Player) -->
-  <div class="global-audio-player" *ngIf="currentPlaying$ | async as activeGadget"
-    [class.player-visible]="activeGadget">
-    <div class="player-container">
-
-      <!-- Mini info -->
-      <div class="player-info">
-        <img [src]="activeGadget.imageUrl" class="player-thumb" />
-        <div class="player-text">
-          <span class="player-title">{{ activeGadget.name }}</span>
-          <span class="player-subtitle">Reproduciendo audio del gadget</span>
-        </div>
-      </div>
-
-      <!-- Controles Principales -->
-      <div class="player-controls">
-        <div class="controls-row">
-          <!-- Botón Play/Pause -->
-          <ion-button (click)="toggleGlobalPlay()" fill="clear" class="btn-play-pause-global">
-            <ion-icon [name]="(isPlaying$ | async) ? 'pause' : 'play'"></ion-icon>
-          </ion-button>
-
-          <!-- Barra de Progreso y Tiempos -->
-          <div class="progress-container">
-            <span class="time-label">{{ formatTime((currentTime$ | async) || 0) }}</span>
-            <ion-range [min]="0" [max]="(duration$ | async) || 0" [value]="(currentTime$ | async) || 0"
-              (ionInput)="onSeek($event)" class="player-seekbar">
-            </ion-range>
-            <span class="time-label">{{ formatTime((duration$ | async) || 0) }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Controles de Volumen y Visualización -->
-      <div class="player-utils">
-        <div class="volume-container">
-          <ion-icon name="volume-high" class="volume-icon"></ion-icon>
-          <ion-range [min]="0" [max]="100" [value]="((volume$ | async) || 0.8) * 100"
-            (ionInput)="onVolumeChange($event)" class="volume-range">
-          </ion-range>
-        </div>
-
-        <!-- Botón de parar todo -->
-        <ion-button (click)="gadgetService.stop()" fill="clear" class="btn-close-player" size="small">
-          <ion-icon name="close"></ion-icon>
-        </ion-button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Modal para ver el Video (YouTube/TikTok) -->
-  <ion-modal [isOpen]="isVideoModalOpen" (didDismiss)="closeVideo()" class="video-modal-view"
-    [class.tiktok-modal]="selectedVideoGadget?.videoUrl?.includes('tiktok')">
-    <ng-template>
-      <div class="modal-video-wrapper" *ngIf="selectedVideoGadget">
-
-        <div class="modal-video-header">
-          <div class="video-header-info">
-            <ion-icon name="film" class="video-hdr-icon"></ion-icon>
-            <h2>Demostración: {{ selectedVideoGadget.name }}</h2>
-          </div>
-          <ion-button (click)="closeVideo()" fill="clear" class="btn-close-modal">
-            <ion-icon name="close" slot="icon-only"></ion-icon>
-          </ion-button>
-        </div>
-
-        <div class="video-frame-container" [class.tiktok-frame]="selectedVideoGadget.videoUrl.includes('tiktok')">
-          <!-- iFrame de video sanitizado directamente en la logica -->
-          <iframe [src]="selectedVideoSafeUrl" frameborder="0" scrolling="no" style="overflow: hidden;"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowfullscreen class="video-iframe">
-          </iframe>
-        </div>
-
-        <div class="modal-video-footer">
-          <p>{{ selectedVideoGadget.description }}</p>
-          <div class="video-source-badge">
-            <ion-icon name="link"></ion-icon>
-            <span>Fuente: {{ selectedVideoGadget.videoUrl.includes('tiktok') ? 'TikTok Video' : 'YouTube Video'
-              }}</span>
-          </div>
-        </div>
-
-      </div>
-    </ng-template>
-  </ion-modal>
-
-  <!-- Modal para Registrar Nuevo Gadget (Carga en Supabase Storage) -->
+  <!-- Modal para Registrar Nueva Encuesta -->
   <ion-modal [isOpen]="isAddModalOpen" (didDismiss)="closeAddModal()" class="add-gadget-modal">
     <ng-template>
       <div class="modal-form-wrapper">
@@ -215,7 +211,7 @@
         <div class="modal-form-header">
           <div class="form-header-info">
             <ion-icon name="sparkles" class="form-hdr-icon"></ion-icon>
-            <h2>{{ isEditMode ? 'Editar Gadget' : 'Registrar Nuevo Gadget' }}</h2>
+            <h2>{{ isEditMode ? 'Editar Encuesta' : 'Registrar Encuesta de Videojuegos' }}</h2>
           </div>
           <ion-button (click)="closeAddModal()" fill="clear" class="btn-close-modal" [disabled]="isUploading">
             <ion-icon name="close" slot="icon-only"></ion-icon>
@@ -223,92 +219,114 @@
         </div>
 
         <div class="modal-form-content">
-
           <ion-list lines="none" class="custom-list-form">
-            <!-- Nombre -->
+            
+            <!-- Nombre o Alias -->
             <div class="form-group">
-              <ion-label class="form-lbl">Nombre *</ion-label>
-              <ion-input [(ngModel)]="newName" placeholder="Ej. Smart Glasses 3.0" class="form-txt-input"
+              <ion-label class="form-lbl">Nombre o Alias del encuestado *</ion-label>
+              <ion-input [(ngModel)]="personaNombre" placeholder="Ej. Joel_98 o tu nombre" class="form-txt-input"
                 [disabled]="isUploading">
               </ion-input>
             </div>
 
-            <!-- Descripción -->
+            <!-- Edad aproximada / Rango -->
             <div class="form-group">
-              <ion-label class="form-lbl">Descripción</ion-label>
-              <ion-textarea [(ngModel)]="newDescription"
-                placeholder="Describe el funcionamiento del gadget o sus características..." rows="3"
+              <ion-label class="form-lbl">Rango de Edad *</ion-label>
+              <ion-select [(ngModel)]="personaEdad" interface="popover" placeholder="Selecciona un rango" class="form-select-input" [disabled]="isUploading">
+                <ion-select-option value="Menor de 18 años">Menor de 18 años</ion-select-option>
+                <ion-select-option value="18 - 25 años">18 - 25 años</ion-select-option>
+                <ion-select-option value="26 - 35 años">26 - 35 años</ion-select-option>
+                <ion-select-option value="36 - 50 años">36 - 50 años</ion-select-option>
+                <ion-select-option value="Más de 50 años">Más de 50 años</ion-select-option>
+              </ion-select>
+            </div>
+
+            <!-- Rol -->
+            <div class="form-group">
+              <ion-label class="form-lbl">Rol institucional *</ion-label>
+              <ion-select [(ngModel)]="personaRol" interface="popover" placeholder="Selecciona tu rol" class="form-select-input" [disabled]="isUploading">
+                <ion-select-option value="Estudiante">Estudiante</ion-select-option>
+                <ion-select-option value="Docente">Docente</ion-select-option>
+                <ion-select-option value="Administrativo">Administrativo</ion-select-option>
+                <ion-select-option value="Visitante">Visitante</ion-select-option>
+              </ion-select>
+            </div>
+
+            <!-- Ubicación en el Campus -->
+            <div class="form-group">
+              <ion-label class="form-lbl">Ubicación (Lugar de la encuesta) *</ion-label>
+              <ion-select [(ngModel)]="personaUbicacion" interface="popover" placeholder="Selecciona el lugar" class="form-select-input" [disabled]="isUploading">
+                <ion-select-option value="Biblioteca Central">Biblioteca Central</ion-select-option>
+                <ion-select-option value="Facultad de Sistemas (FIEE)">Facultad de Sistemas (FIEE)</ion-select-option>
+                <ion-select-option value="Aulas de Clase">Aulas de Clase</ion-select-option>
+                <ion-select-option value="Laboratorios de Computación">Laboratorios de Computación</ion-select-option>
+                <ion-select-option value="Cafetería Central">Cafetería Central</ion-select-option>
+                <ion-select-option value="Coliseo / Canchas">Coliseo / Canchas</ion-select-option>
+                <ion-select-option value="Edificio Administrativo">Edificio Administrativo</ion-select-option>
+                <ion-select-option value="Otro Lugar del Campus">Otro Lugar del Campus</ion-select-option>
+              </ion-select>
+            </div>
+
+            <!-- BUSCADOR DE VIDEOJUEGOS EN LA API DENTRO DEL MODAL (OPCIONAL) -->
+            <div class="api-search-section" *ngIf="!videojuegoFavorito">
+              <ion-label class="form-lbl">Buscar Videojuego en FreeToGame API *</ion-label>
+              <div class="input-with-button">
+                <ion-input [(ngModel)]="apiSearchQuery" placeholder="Escribe para buscar (Ej. Overwatch, Flyff...)" class="form-txt-input search-game-input"
+                  [disabled]="isUploading || isSearchingAPI" (keyup.enter)="searchGamesOnAPI()">
+                </ion-input>
+                <ion-button (click)="searchGamesOnAPI()" class="api-search-btn" fill="clear" [disabled]="isUploading || isSearchingAPI || !apiSearchQuery.trim()" title="Buscar en FreeToGame">
+                  <ion-icon slot="icon-only" name="search" *ngIf="!isSearchingAPI"></ion-icon>
+                  <ion-spinner name="crescent" class="btn-spinner" *ngIf="isSearchingAPI"></ion-spinner>
+                </ion-button>
+              </div>
+              <span class="api-help-text">Presiona Enter o la lupa para cargar sugerencias.</span>
+              
+              <!-- Sugerencias de resultados -->
+              <div class="api-results-list animate-fade" *ngIf="apiSearchResults.length > 0">
+                <div class="api-result-item" *ngFor="let result of apiSearchResults" (click)="selectGameFromAPI(result.id)">
+                  <img [src]="result.thumbnail" class="result-thumb" />
+                  <div class="result-info">
+                    <span class="result-title">{{ result.title }}</span>
+                    <span class="result-genre">{{ result.genre }} • {{ result.platform }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FICHA TÉCNICA Y ESPECIFICACIONES (Autocompletado de la API al seleccionar) -->
+            <div class="game-specs-container" *ngIf="videojuegoFavorito">
+              <div class="game-specs-card">
+                <img [src]="imageUrl" class="specs-thumb" />
+                <div class="specs-details">
+                  <h3 class="specs-title">{{ videojuegoFavorito }}</h3>
+                  
+                  <div class="specs-badges-row">
+                    <span class="specs-badge badge-genre">{{ generoFavorito }}</span>
+                    <span class="specs-badge badge-platform">{{ plataforma }}</span>
+                  </div>
+
+                  <div class="specs-extra-details" *ngIf="selectedGameDetails">
+                    <div class="specs-detail-row">
+                      <span><strong>Desarrollador:</strong> {{ selectedGameDetails.developer }}</span>
+                    </div>
+                    <div class="specs-detail-row">
+                      <span><strong>Distribuidor:</strong> {{ selectedGameDetails.publisher }}</span>
+                    </div>
+                    <div class="specs-detail-row">
+                      <span><strong>Lanzamiento:</strong> {{ selectedGameDetails.release_date }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Comentario Breve / Opinión del Usuario (Editable) -->
+            <div class="form-group" *ngIf="videojuegoFavorito">
+              <ion-label class="form-lbl">Comentario breve o descripción *</ion-label>
+              <ion-textarea [(ngModel)]="comentario"
+                placeholder="Cuéntanos brevemente por qué es tu juego favorito o qué te gusta de él..." rows="3"
                 class="form-txt-input textarea-input" [disabled]="isUploading">
               </ion-textarea>
-            </div>
-
-            <!-- Link de Video -->
-            <div class="form-group">
-              <ion-label class="form-lbl">Link a Video (TikTok / YouTube) *</ion-label>
-              <ion-input [(ngModel)]="newVideoUrl" placeholder="https://www.tiktok.com/@.../video/..."
-                class="form-txt-input" [disabled]="isUploading">
-              </ion-input>
-            </div>
-
-            <!-- Carga de Imagen (Supabase Storage) -->
-            <div class="form-group upload-group">
-              <ion-label class="form-lbl">
-                Imagen del gadget * <span *ngIf="isEditMode" class="optional-lbl">(Opcional al editar)</span>
-              </ion-label>
-
-              <div class="upload-zone"
-                [class.file-loaded]="imageFile !== null || (isEditMode && editingGadget?.imageUrl)">
-                <input type="file" id="imageUploadInput" accept="image/*" (change)="onImageSelected($event)"
-                  class="hidden-file-input" [disabled]="isUploading" />
-                <label for="imageUploadInput" class="upload-zone-label">
-                  <div class="upload-icon-box">
-                    <ion-icon name="cloud-upload"></ion-icon>
-                  </div>
-                  <div class="upload-text-box">
-                    <span class="upload-primary-text">
-                      {{ imageFile ? 'Nueva fotografía seleccionada' : (isEditMode ? 'Fotografía actual cargada' :
-                      'Selecciona una imagen') }}
-                    </span>
-                    <span class="upload-secondary-text">
-                      {{ imageFile ? imageFileName : (isEditMode ? 'Haz clic para cambiar la imagen' : 'Formatos
-                      aceptados: PNG, JPG, JPEG, WEBP') }}
-                    </span>
-                  </div>
-                </label>
-              </div>
-
-              <!-- Preview de imagen seleccionada -->
-              <div class="image-select-preview" *ngIf="imagePreviewUrl">
-                <img [src]="imagePreviewUrl" alt="Preview" />
-              </div>
-            </div>
-
-            <!-- Carga de Audio (Supabase Storage) -->
-            <div class="form-group upload-group">
-              <ion-label class="form-lbl">
-                Audio Demostrativo * <span *ngIf="isEditMode" class="optional-lbl">(Opcional al editar)</span>
-              </ion-label>
-
-              <div class="upload-zone sound-zone"
-                [class.file-loaded]="audioFile !== null || (isEditMode && editingGadget?.audioUrl)">
-                <input type="file" id="audioUploadInput" accept="audio/*" (change)="onAudioSelected($event)"
-                  class="hidden-file-input" [disabled]="isUploading" />
-                <label for="audioUploadInput" class="upload-zone-label">
-                  <div class="upload-icon-box sound-icon">
-                    <ion-icon name="musical-notes"></ion-icon>
-                  </div>
-                  <div class="upload-text-box">
-                    <span class="upload-primary-text">
-                      {{ audioFile ? 'Nuevo archivo de sonido seleccionado' : (isEditMode ? 'Sonido actual cargado' :
-                      'Selecciona el sonido') }}
-                    </span>
-                    <span class="upload-secondary-text">
-                      {{ audioFile ? audioFileName : (isEditMode ? 'Haz clic para cambiar el sonido' : 'Formatos
-                      aceptados: MP3, WAV, AAC, M4A') }}
-                    </span>
-                  </div>
-                </label>
-              </div>
             </div>
 
           </ion-list>
@@ -324,9 +342,9 @@
           <ion-button (click)="closeAddModal()" fill="clear" class="btn-cancel" [disabled]="isUploading">
             Cancelar
           </ion-button>
-          <ion-button (click)="saveGadget()" class="btn-save" [disabled]="isUploading">
+          <ion-button (click)="saveGadget()" class="btn-save" [disabled]="isUploading || !videojuegoFavorito">
             <ion-icon slot="start" name="sparkles" *ngIf="!isUploading"></ion-icon>
-            {{ isEditMode ? 'Actualizar Gadget' : 'Subir y Guardar' }}
+            {{ isEditMode ? 'Actualizar Encuesta' : 'Guardar Encuesta' }}
           </ion-button>
         </div>
 
