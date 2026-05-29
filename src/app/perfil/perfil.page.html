@@ -1,0 +1,114 @@
+<ion-header class="ion-no-border profile-header">
+  <ion-toolbar class="profile-toolbar">
+    <div class="profile-topbar">
+      <div class="brand-area">
+        <ion-icon name="person-circle" class="brand-icon"></ion-icon>
+        <div>
+          <h2>Mi Perfil</h2>
+          <p>Gestiona tu cuenta</p>
+        </div>
+      </div>
+
+      <ion-button fill="clear" class="logout-btn" (click)="logout()">
+        <ion-icon name="log-out-outline" slot="start"></ion-icon>
+        Salir
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="profile-content">
+
+  <div class="profile-wrapper">
+
+    <section class="profile-hero">
+      <div class="hero-glow"></div>
+
+      <div class="avatar-zone">
+        <button
+          type="button"
+          class="avatar-frame"
+          (click)="seleccionarFoto()">
+
+          <img
+            *ngIf="perfil.fotoPerfil"
+            [src]="perfil.fotoPerfil"
+            alt="Foto de perfil">
+
+          <ion-icon
+            *ngIf="!perfil.fotoPerfil"
+            name="person"
+            class="avatar-placeholder">
+          </ion-icon>
+
+          <div class="avatar-edit">
+            <ion-icon name="camera-outline"></ion-icon>
+          </div>
+
+        </button>
+
+        <h1>{{ perfil.nombre || 'Jugador' }} {{ perfil.apellido || '' }}</h1>
+        <p>{{ perfil.email }}</p>
+
+        <span class="status-badge">
+          <ion-icon name="checkmark-circle"></ion-icon>
+          Cuenta activa
+        </span>
+      </div>
+    </section>
+
+    <section class="profile-grid">
+
+      <ion-card class="profile-card">
+        <ion-card-header>
+          <ion-card-title>Datos personales</ion-card-title>
+          <ion-card-subtitle>Información visible del usuario</ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content>
+
+          <div class="form-group">
+            <label>Nombre</label>
+            <ion-input
+              class="profile-input"
+              [(ngModel)]="perfil.nombre"
+              placeholder="Ingresa tu nombre">
+              <ion-icon name="person-outline" slot="start"></ion-icon>
+            </ion-input>
+          </div>
+
+          <div class="form-group">
+            <label>Apellido</label>
+            <ion-input
+              class="profile-input"
+              [(ngModel)]="perfil.apellido"
+              placeholder="Ingresa tu apellido">
+              <ion-icon name="id-card-outline" slot="start"></ion-icon>
+            </ion-input>
+          </div>
+
+          <ion-button
+            expand="block"
+            class="save-btn"
+            (click)="guardarPerfil()">
+            <ion-icon name="save-outline" slot="start"></ion-icon>
+            Guardar cambios
+          </ion-button>
+
+        </ion-card-content>
+      </ion-card>
+
+    </section>
+
+  </div>
+
+  <ion-toast
+    [isOpen]="toastOpen"
+    [message]="toastMessage"
+    [duration]="2000"
+    [color]="toastColor"
+    position="top"
+    (didDismiss)="toastOpen = false">
+  </ion-toast>
+
+</ion-content>

@@ -14,7 +14,7 @@ import {
 import { addIcons } from 'ionicons';
 import {
   add, close, trash, sparkles, pencil, person, gameController,
-  hardwareChip, albums, chatbubbleEllipses, calendar, search, location
+  hardwareChip, albums, chatbubbleEllipses, calendar, search, location, checkmarkCircle
 } from 'ionicons/icons';
 
 import { GadgetService, Videojuego } from '../services/gadget.service';
@@ -77,7 +77,7 @@ export class HomePage implements OnInit {
     // Registrar iconos standalone necesarios
     addIcons({
       add, close, trash, sparkles, pencil, person, gameController,
-      hardwareChip, albums, chatbubbleEllipses, calendar, search, location
+      hardwareChip, albums, chatbubbleEllipses, calendar, search, location, checkmarkCircle
     });
   }
 

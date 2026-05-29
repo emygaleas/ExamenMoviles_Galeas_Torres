@@ -29,8 +29,13 @@ import {
   lockClosedOutline,
   personAddOutline,
   checkmarkCircleOutline,
-  closeCircleOutline
+  closeCircleOutline,
+  personOutline,
+  idCardOutline,
+  gameControllerOutline
 } from 'ionicons/icons';
+
+import {AuthService} from "../services/auth.service";
 
 @Component({
   selector: 'app-register',
@@ -58,54 +63,62 @@ import {
 
 export class RegisterPage implements OnInit {
 
+  nombre = '';
+  apellido = '';
   email = '';
   password = '';
   mensaje = '';
 
   constructor(
-    private supabaseService: SupabaseService,
+    private authService: AuthService,
     private router: Router,
     private toastController: ToastController
   ) {
 
     addIcons({
+      'person-outline': personOutline,
+      'id-card-outline': idCardOutline,
       'mail-outline': mailOutline,
       'lock-closed-outline': lockClosedOutline,
       'person-add-outline': personAddOutline,
       'checkmark-circle-outline': checkmarkCircleOutline,
-      'close-circle-outline': closeCircleOutline
+      'close-circle-outline': closeCircleOutline,
+      'game-controller-outline': gameControllerOutline
     });
 
   }
 
   async register() {
+    try {
+      await this.authService.register(
+        this.email,
+        this.password,
+        this.nombre,
+        this.apellido
+      );
 
-    const { error } = await this.supabaseService.register(
-      this.email,
-      this.password
-    );
+      await this.mostrarToast(
+        'Registro exitoso',
+        'success'
+      );
 
-    if (error) {
+      setTimeout(() => {
+        this.router.navigateByUrl('/login');
+      }, 2000);
 
+    } catch (error: any) {
+      console.log('ERROR FIREBASE:', error);
+
+      console.log('CODE:', error.code);
+
+      console.log('MESSAGE:', error.message);
       this.mensaje = error.message;
 
       await this.mostrarToast(
         'No se pudo registrar',
         'danger'
       );
-
-      return;
     }
-
-    await this.mostrarToast(
-      'Registro exitoso',
-      'success'
-    );
-
-    setTimeout(() => {
-      this.router.navigateByUrl('/login');
-    }, 2000);
-
   }
 
   async login() {

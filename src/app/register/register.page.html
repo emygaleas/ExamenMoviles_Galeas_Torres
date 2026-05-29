@@ -1,19 +1,47 @@
-<ion-content [fullscreen]="true" class="login-content">
+<ion-content [fullscreen]="true" class="register-content" scroll-y="false">
 
-  <div class="login-container">
+  <div class="register-container">
 
-    <div class="logo-section">
-      <ion-icon name="person-add-outline"></ion-icon>
-      <h1>Crear Cuenta</h1>
-      <p>Regístrate para continuar</p>
+    <div class="hero-section">
+      <div class="icon-circle">
+        <ion-icon name="game-controller-outline"></ion-icon>
+      </div>
+
+      <h1>Crear perfil</h1>
+      <p>Únete a Game Survey Campus</p>
     </div>
 
-    <ion-card class="login-card">
+    <ion-card class="register-card">
       <ion-card-content>
+
+        <div class="section-title">
+          <span>Datos personales</span>
+        </div>
+
+        <ion-item lines="none" class="custom-item">
+          <ion-icon name="person-outline" slot="start"></ion-icon>
+          <ion-input
+            type="text"
+            placeholder="Nombre"
+            [(ngModel)]="nombre">
+          </ion-input>
+        </ion-item>
+
+        <ion-item lines="none" class="custom-item">
+          <ion-icon name="id-card-outline" slot="start"></ion-icon>
+          <ion-input
+            type="text"
+            placeholder="Apellido"
+            [(ngModel)]="apellido">
+          </ion-input>
+        </ion-item>
+
+        <div class="section-title">
+          <span>Cuenta</span>
+        </div>
 
         <ion-item lines="none" class="custom-item">
           <ion-icon name="mail-outline" slot="start"></ion-icon>
-
           <ion-input
             type="email"
             placeholder="Correo electrónico"
@@ -23,7 +51,6 @@
 
         <ion-item lines="none" class="custom-item">
           <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
-
           <ion-input
             type="password"
             placeholder="Contraseña"
@@ -33,23 +60,21 @@
 
         <ion-button
           expand="block"
-          class="login-button"
+          class="register-main-button"
           (click)="register()">
-
-          Registrarse
+          Crear cuenta
         </ion-button>
 
       </ion-card-content>
     </ion-card>
 
-    <div class="register-section">
+    <div class="login-link">
       <p>¿Ya tienes una cuenta?</p>
 
       <ion-button
         fill="clear"
-        class="register-button"
+        class="login-button"
         (click)="login()">
-
         Inicia sesión
       </ion-button>
     </div>
