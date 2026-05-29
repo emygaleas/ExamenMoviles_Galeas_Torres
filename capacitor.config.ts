@@ -2,20 +2,24 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'io.ionic.starter',
-  appName: 'gadgets',
+  appName: 'VideojuegosEncuesta',
   webDir: 'www',
   plugins: {
     SplashScreen: {
-      launchShowDuration: 2000,
+      launchShowDuration: 0,
       launchAutoHide: true,
-      launchFadeOutDuration: 300,
-      backgroundColor: '#0e0e11',
+      backgroundColor: 'white',
       androidSplashResourceName: 'splash',
       androidScaleType: 'CENTER_CROP',
       showSpinner: false,
+      androidSpinnerStyle: 'large',
+      iosSpinnerStyle: 'small',
+      spinnerColor: '#999999',
       splashFullScreen: true,
-      splashImmersive: true
-    }
+      splashImmersive: true,
+      layoutName: 'launch_screen',
+      useDialog: true,
+    },
   }
 };
 
