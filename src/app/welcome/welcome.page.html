@@ -1,0 +1,40 @@
+<ion-content [fullscreen]="true" class="welcome-content" scroll-y="false">
+
+  <div class="bg-grid"></div>
+  <div class="orb orb-one"></div>
+  <div class="orb orb-two"></div>
+
+  <div class="welcome-container">
+
+    <div class="welcome-card">
+
+      <div class="badge">
+        <ion-icon name="game-controller-outline"></ion-icon>
+        Game Survey Campus
+      </div>
+
+      <h1>¿Cuál es tu videojuego favorito?</h1>
+
+      <p class="promo-text">
+        Estamos probando una app de videojuegos desarrollada en Ionic.
+        Crea una cuenta, explora encuestas del campus y ayúdanos a mejorar la experiencia.
+      </p>
+
+      <div class="qr-box">
+        <img src="../../assets/qr-code.png" alt="QR de descarga">
+        <span>Escanea para acceder al repositorio del proyecto y descargar la aplicación.</span>
+      </div>
+
+      <ion-button expand="block" class="main-btn" routerLink="/register">
+        Crear cuenta
+      </ion-button>
+
+      <ion-button fill="clear" class="secondary-btn" routerLink="/login">
+        Ya tengo una cuenta
+      </ion-button>
+
+    </div>
+
+  </div>
+
+</ion-content>
