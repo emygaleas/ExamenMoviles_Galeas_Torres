@@ -20,9 +20,8 @@ import {
   lockClosedOutline,
   checkmarkCircleOutline,
   closeCircleOutline,
-  personOutline,
-  idCardOutline,
-  calendarOutline
+  gameControllerOutline,
+  flashOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -52,7 +51,8 @@ export class LoginPage implements OnInit {
       'lock-closed-outline': lockClosedOutline,
       'checkmark-circle-outline': checkmarkCircleOutline,
       'close-circle-outline': closeCircleOutline,
-      'calendar-outline': calendarOutline
+      'game-controller-outline': gameControllerOutline,
+      'flash-outline': flashOutline
     });
   }
 
