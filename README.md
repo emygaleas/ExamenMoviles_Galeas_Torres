@@ -2,8 +2,8 @@
 
 ## 👩‍💻👨‍💻 Estudiantes
 
-**Emily Alejandra Galeas Tingo**
-**Joel Eduardo Torres Mora**
+* **Emily Alejandra Galeas Tingo**
+* **Joel Eduardo Torres Mora**
 
 ---
 
@@ -211,15 +211,55 @@ npm i
 
 ---
 
+# 🏫 Trabajo de Campo
+
+Como parte del proyecto se realizó una jornada de recopilación de información dentro de las instalaciones de la Escuela Politécnica Nacional.
+
+Durante esta actividad se utilizaron las funcionalidades de la aplicación para registrar encuestas, ubicaciones y preferencias de videojuegos de los estudiantes participantes.
+
+## Resultados obtenidos
+
+* ✅ Más de 50 encuestas válidas registradas
+* ✅ Más de 50 ubicaciones recopiladas dentro del campus
+* ✅ Información correspondiente a más de 20 videojuegos distintos
+* ✅ Evidencias fotográficas almacenadas en la nube
+* ✅ Participación de estudiantes de diferentes facultades y carreras
+
+La información recopilada fue almacenada en Firebase y posteriormente utilizada para la generación de estadísticas y visualizaciones dentro de la aplicación.
+
+---
+
 # 📷 Evidencias
 
-| 🚀 Welcome                     | 🔐 Login                     | 👤 Registro                     | 🎮 Home                     |
-| ------------------------------ | ---------------------------- | ------------------------------- | --------------------------- |
-| ![](./evidencias/welcome.jpeg) | ![](./evidencias/login.jpeg) | ![](./evidencias/register.jpeg) | ![](./evidencias/home.jpeg) |
+<table>
+  <tr>
+    <th>🚀 Welcome</th>
+    <th>🔐 Login</th>
+    <th>👤 Registro</th>
+    <th>🎮 Home</th>
+  </tr>
+  <tr>
+    <td><img src="./evidencias/welcome.jpeg" width="180"/></td>
+    <td><img src="./evidencias/login.jpeg" width="180"/></td>
+    <td><img src="./evidencias/register.jpeg" width="180"/></td>
+    <td><img src="./evidencias/home.jpeg" width="180"/></td>
+  </tr>
+</table>
 
-| 📝 Encuesta                     | 📊 Dashboard                     | 👤 Perfil                     | 📍 Geolocalización                     |
-| ------------------------------- | -------------------------------- | ----------------------------- | -------------------------------------- |
-| ![](./evidencias/encuesta.jpeg) | ![](./evidencias/dashboard.jpeg) | ![](./evidencias/perfil.jpeg) | ![](./evidencias/geolocalizacion.jpeg) |
+<table>
+  <tr>
+    <th>📝 Encuesta</th>
+    <th>📊 Dashboard</th>
+    <th>👤 Perfil</th>
+    <th>📍 Geolocalización</th>
+  </tr>
+  <tr>
+    <td><img src="./evidencias/encuesta.jpeg" width="180"/></td>
+    <td><img src="./evidencias/dashboard.jpeg" width="180"/></td>
+    <td><img src="./evidencias/perfil.jpeg" width="180"/></td>
+    <td><img src="./evidencias/geolocalizacion.jpeg" width="180"/></td>
+  </tr>
+</table>
 
 ---
 # 🌐 Accesos del Proyecto
@@ -236,7 +276,7 @@ La versión Android de la aplicación en el siguiente link:
 
 La aplicación también se encuentra desplegada mediante Firebase Hosting:
 
-🔗 [Despliegue](https://tu-proyecto.web.app)
+🔗 [Despliegue](https://videojuegos-403c3.web.app/welcome)
 
 ---
 
