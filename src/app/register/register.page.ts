@@ -87,8 +87,56 @@ export class RegisterPage implements OnInit {
     });
 
   }
+  validarEmail(email: string): boolean {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  }
 
   async register() {
+    this.nombre = this.nombre.trim();
+    this.apellido = this.apellido.trim();
+    this.email = this.email.trim();
+
+    if (!this.nombre || !this.apellido || !this.email || !this.password) {
+      await this.mostrarToast(
+        'Completa todos los campos',
+        'danger'
+      );
+      return;
+    }
+
+    if (this.nombre.length < 2) {
+      await this.mostrarToast(
+        'El nombre debe tener al menos 2 caracteres',
+        'danger'
+      );
+      return;
+    }
+
+    if (this.apellido.length < 2) {
+      await this.mostrarToast(
+        'El apellido debe tener al menos 2 caracteres',
+        'danger'
+      );
+      return;
+    }
+
+    if (!this.validarEmail(this.email)) {
+      await this.mostrarToast(
+        'Ingresa un correo válido',
+        'danger'
+      );
+      return;
+    }
+
+    if (this.password.length < 6) {
+      await this.mostrarToast(
+        'La contraseña debe tener mínimo 6 caracteres',
+        'danger'
+      );
+      return;
+    }
+
     try {
       await this.authService.register(
         this.email,
@@ -104,20 +152,30 @@ export class RegisterPage implements OnInit {
 
       setTimeout(() => {
         this.router.navigateByUrl('/login');
-      }, 2000);
+      }, 1500);
 
     } catch (error: any) {
-      console.log('ERROR FIREBASE:', error);
+      console.log('ERROR FIREBASE:', error.code);
 
-      console.log('CODE:', error.code);
+      let mensaje = 'No se pudo registrar';
 
-      console.log('MESSAGE:', error.message);
-      this.mensaje = error.message;
+      if (error.code === 'auth/email-already-in-use') {
+        mensaje = 'Este correo ya está registrado';
+      }
 
-      await this.mostrarToast(
-        'No se pudo registrar',
-        'danger'
-      );
+      if (error.code === 'auth/invalid-email') {
+        mensaje = 'Correo electrónico inválido';
+      }
+
+      if (error.code === 'auth/weak-password') {
+        mensaje = 'La contraseña es muy débil';
+      }
+
+      if (error.code === 'auth/network-request-failed') {
+        mensaje = 'Error de conexión. Revisa tu internet';
+      }
+
+      await this.mostrarToast(mensaje, 'danger');
     }
   }
 
