@@ -19,14 +19,13 @@ $color-text-muted: #6b7280;
 .profile-header {
   background: $color-bg-surface;
   border-bottom: 1px solid $color-border;
-  padding-top: 22px;
+  padding-top: env(safe-area-inset-top, 22px); // Adaptable para evitar que el notch del celular tape el perfil
 }
 
 .profile-toolbar {
   --background: #{$color-bg-surface};
   --border-width: 0;
-  padding-top: 12px;
-  padding-bottom: 8px;
+  padding: 8px 24px; // Añadido 24px de padding horizontal para alejar del borde en web
 }
 
 .profile-topbar {
@@ -256,7 +255,7 @@ $color-text-muted: #6b7280;
   }
 
   .profile-toolbar {
-    padding: 6px 12px;
+    padding: 6px 16px; // Añadido 16px de padding en móviles para mantener consistencia premium
   }
 
   .profile-hero {

@@ -17,6 +17,10 @@ export const routes: Routes = [
           .then(m => m.HomePage)
       },
       {
+        path: 'tablero',
+        loadComponent: () => import('../tablero/tablero.page').then(m => m.TableroPage)
+      },
+      {
         path: 'perfil',
         loadComponent: () => import('../perfil/perfil.page').then( m => m.PerfilPage)
       },

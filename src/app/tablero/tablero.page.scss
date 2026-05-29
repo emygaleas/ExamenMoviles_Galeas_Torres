@@ -1,0 +1,427 @@
+// --- Paleta de Colores Tecnológicos Premium y Minimalistas ---
+$color-bg-deep: #0e0e11; // Carbón profundo
+$color-bg-surface: #17171c; // Pizarra satinado
+$color-bg-card: #202026; // Titanio cepillado
+$color-border: rgba(255, 255, 255, 0.07);
+$color-border-hover: rgba(255, 255, 255, 0.12);
+
+$color-accent: #60a5fa; // Azul Hielo Premium
+$color-accent-subtle: rgba(96, 165, 250, 0.12);
+$color-success: #10b981; // Esmeralda discreto
+$color-success-subtle: rgba(16, 185, 129, 0.12);
+$color-orange: #f59e0b; // Ámbar/Naranja
+$color-orange-subtle: rgba(245, 158, 11, 0.12);
+
+$color-text-primary: #f3f4f6; // Platina brillante
+$color-text-secondary: #9ca3af; // Acero gris
+$color-text-muted: #6b7280; // Gris oscuro
+$font-premium: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+// --- Contenedor Principal y Estructura ---
+.premium-content {
+  --background: #{$color-bg-deep};
+  --color: #{$color-text-primary};
+  font-family: $font-premium;
+}
+
+// --- Header Premium ---
+.premium-header {
+  background: $color-bg-surface;
+  border-bottom: 1px solid #{$color-border};
+  font-family: $font-premium;
+  padding-top: env(safe-area-inset-top, 0px); /* Safe Area */
+
+  .header-toolbar {
+    --background: #{$color-bg-surface};
+    --border-width: 0;
+    padding: 12px 24px;
+  }
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+
+  .logo-icon {
+    font-size: 24px;
+    color: $color-accent;
+  }
+
+  .logo-text-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .logo-title {
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.5px;
+    color: $color-text-primary;
+    line-height: 1.2;
+  }
+
+  .logo-subtitle {
+    font-weight: 400;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: $color-text-secondary;
+    margin-top: 2px;
+    line-height: 1;
+  }
+}
+
+.add-gadget-btn {
+  --color: #{$color-text-primary};
+  --background: #{$color-bg-card};
+  --border-radius: 12px;
+  --border-width: 1px;
+  --border-style: solid;
+  --border-color: #{$color-border};
+  font-family: $font-premium;
+  font-weight: 600;
+  font-size: 14px;
+  height: 40px;
+  margin: 0;
+  transition: all 0.2s ease;
+  border: 1px solid $color-border;
+  border-radius: 12px;
+
+  &:hover {
+    background: $color-border;
+    border-color: $color-accent;
+    color: $color-accent;
+  }
+
+  ion-icon {
+    font-size: 18px;
+    color: $color-accent;
+  }
+}
+
+.dashboard-wrapper {
+  padding: 24px;
+  max-width: 1300px;
+  margin: 0 auto;
+  min-height: 100%;
+  padding-bottom: 120px; // Espacio extra para los tabs flotantes
+}
+
+// --- Insignias e Iconos de Colores ---
+.icon-blue {
+  color: $color-accent !important;
+}
+.icon-green {
+  color: $color-success !important;
+}
+.icon-orange {
+  color: $color-orange !important;
+}
+
+// --- KPI Cards (Contadores de Alta Calidad) ---
+.kpi-card {
+  position: relative;
+  background: rgba(23, 23, 28, 0.6);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid #{$color-border};
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100%;
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: $color-border-hover;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+
+    .kpi-glow-bg {
+      opacity: 1;
+    }
+  }
+
+  // Fondo de Glow Translúcido en Hover
+  .kpi-glow-bg {
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    filter: blur(40px);
+    opacity: 0.3;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    z-index: 1;
+  }
+
+  &.card-total .kpi-glow-bg {
+    background: radial-gradient(circle, rgba(96, 165, 250, 0.15) 0%, transparent 70%);
+  }
+  &.card-games .kpi-glow-bg {
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+  }
+  &.card-locations .kpi-glow-bg {
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+  }
+
+  .kpi-header {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: $color-text-secondary;
+      text-transform: uppercase;
+    }
+
+    .kpi-icon {
+      font-size: 22px;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  .kpi-value {
+    position: relative;
+    z-index: 2;
+    font-size: 44px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: $color-text-primary;
+    line-height: 1;
+  }
+
+  .kpi-footer {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: $color-text-muted;
+
+    ion-icon {
+      font-size: 14px;
+    }
+  }
+}
+
+// --- Tarjetas de Gráficos / Distribuciones ---
+.chart-card {
+  margin: 0;
+  background: rgba(23, 23, 28, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #{$color-border};
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  height: auto; // Evita la sobreposición y colapso de altura en dispositivos móviles
+  display: flex;
+  flex-direction: column;
+
+  @media (min-width: 992px) {
+    &.h-full-card {
+      height: 100%;
+    }
+  }
+
+  ion-card-header {
+    padding: 24px 24px 16px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  }
+
+  .chart-header-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    .chart-header-icon {
+      font-size: 24px;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  .chart-title {
+    font-family: $font-premium;
+    font-size: 16px;
+    font-weight: 700;
+    color: $color-text-primary;
+  }
+
+  .chart-subtitle {
+    font-family: $font-premium;
+    font-size: 12px;
+    color: $color-text-muted;
+    margin-top: 2px;
+  }
+
+  ion-card-content {
+    padding: 24px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+// --- Listados y Barras de Progreso CSS Personalizadas ---
+.chart-list-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.chart-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.chart-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+
+  .chart-item-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: $color-text-primary;
+  }
+
+  .chart-item-value {
+    font-size: 12px;
+    color: $color-text-secondary;
+    font-weight: 500;
+  }
+}
+
+// Contenedor de Barra
+.progress-bar-track {
+  width: 100%;
+  height: 8px;
+  background: #0e0e11;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+// Relleno de Barra con Brillo y Gradientes
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 1s cubic-bezier(0.165, 0.84, 0.44, 1);
+  position: relative;
+
+  &.fill-blue {
+    background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+    box-shadow: 0 0 10px rgba(96, 165, 250, 0.2);
+  }
+
+  &.fill-green {
+    background: linear-gradient(90deg, #059669 0%, #10b981 100%);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+  }
+
+  &.fill-orange {
+    background: linear-gradient(90deg, #d97706 0%, #f59e0b 100%);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+  }
+}
+
+// --- Detalles Especiales de Género (Rankings) ---
+.genre-rank-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .genre-rank {
+    font-family: monospace;
+    font-size: 12px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: $color-text-secondary;
+    padding: 2px 6px;
+    border-radius: 4px;
+    min-width: 24px;
+    text-align: center;
+  }
+}
+
+// --- Empty / State Vacío ---
+.empty-state {
+  text-align: center;
+  padding: 60px 24px;
+  max-width: 400px;
+  margin: 0 auto;
+
+  .empty-icon {
+    font-size: 48px;
+    color: $color-text-muted;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: $color-text-primary;
+    margin: 0 0 8px 0;
+  }
+
+  p {
+    font-size: 14px;
+    color: $color-text-secondary;
+    line-height: 1.5;
+    margin: 0;
+  }
+}
+
+// --- Animaciones ---
+.col-animate {
+  padding: 12px;
+}
+
+.animate-fade {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

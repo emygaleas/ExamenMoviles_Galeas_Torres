@@ -1,0 +1,201 @@
+<ion-header class="ion-no-border premium-header">
+  <ion-toolbar class="header-toolbar">
+    <div class="header-container">
+      <div class="logo-area">
+        <ion-icon name="stats-chart-outline" class="logo-icon"></ion-icon>
+        <div class="logo-text-wrapper">
+          <span class="logo-title">Tablero de Visualización</span>
+        </div>
+      </div>
+      <ion-button (click)="refrescarDatos()" class="add-gadget-btn" fill="clear" [disabled]="isLoading">
+        <ion-icon slot="start" name="sparkles-outline"></ion-icon>
+        Refrescar
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="premium-content">
+  <div class="dashboard-wrapper">
+
+    <!-- Loading State -->
+    <div class="empty-state" style="padding: 100px 24px;" *ngIf="isLoading">
+      <ion-spinner name="crescent" style="--color: #60a5fa; width: 48px; height: 48px;"></ion-spinner>
+      <h3 style="margin-top: 16px;">Analizando datos de Firestore...</h3>
+      <p>Procesando métricas y geolocalizaciones en tiempo real.</p>
+    </div>
+
+    <!-- Main Dashboard View -->
+    <div class="animate-fade" *ngIf="!isLoading">
+
+      <!-- 1. KPI CARDS GRID (TARJETAS DE CONTADORES PRINCIPALES) -->
+      <ion-grid class="ion-no-padding">
+        <ion-row>
+          <!-- Total Encuestas -->
+          <ion-col size="12" size-md="4" class="col-animate">
+            <div class="kpi-card glass-kpi card-total">
+              <div class="kpi-glow-bg"></div>
+              <div class="kpi-header">
+                <span class="kpi-label">TOTAL DE ENCUESTAS</span>
+                <ion-icon name="people-outline" class="kpi-icon icon-blue"></ion-icon>
+              </div>
+              <div class="kpi-value">{{ totalEncuestas }}</div>
+              <div class="kpi-footer">
+                <ion-icon name="trending-up-outline"></ion-icon>
+                <span>Registros sincronizados activos</span>
+              </div>
+            </div>
+          </ion-col>
+
+          <!-- Juegos Distintos -->
+          <ion-col size="12" size-md="4" class="col-animate">
+            <div class="kpi-card glass-kpi card-games">
+              <div class="kpi-glow-bg"></div>
+              <div class="kpi-header">
+                <span class="kpi-label">JUEGOS DISTINTOS</span>
+                <ion-icon name="game-controller-outline" class="kpi-icon icon-green"></ion-icon>
+              </div>
+              <div class="kpi-value">{{ juegosDistintosCount }}</div>
+              <div class="kpi-footer">
+                <ion-icon name="sparkles-outline"></ion-icon>
+                <span>Catálogo de títulos únicos</span>
+              </div>
+            </div>
+          </ion-col>
+
+          <!-- Ubicaciones EPN -->
+          <ion-col size="12" size-md="4" class="col-animate">
+            <div class="kpi-card glass-kpi card-locations">
+              <div class="kpi-glow-bg"></div>
+              <div class="kpi-header">
+                <span class="kpi-label">LUGARES DE LA EPN</span>
+                <ion-icon name="location-outline" class="kpi-icon icon-orange"></ion-icon>
+              </div>
+              <div class="kpi-value">{{ ubicacionesCount }}</div>
+              <div class="kpi-footer">
+                <ion-icon name="location-outline"></ion-icon>
+                <span>Puntos del campus georreferenciados</span>
+              </div>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <!-- 2. ANALYTICS DETAILS SECTION (FILA DE DETALLES Y DISTRIBUCIONES) -->
+      <ion-grid class="ion-no-padding" style="margin-top: 16px;">
+        <ion-row>
+
+          <!-- Columna Izquierda: Rol Institucional y Plataformas -->
+          <ion-col size="12" size-lg="6" class="col-animate">
+
+            <!-- Distribución por Rol Institucional (Estudiante, Docente, etc.) -->
+            <ion-card class="chart-card">
+              <ion-card-header>
+                <div class="chart-header-row">
+                  <ion-icon name="people-outline" class="chart-header-icon icon-blue"></ion-icon>
+                  <div>
+                    <ion-card-title class="chart-title">Participación por Rol Institucional</ion-card-title>
+                    <ion-card-subtitle class="chart-subtitle">Distribución porcentual en la EPN</ion-card-subtitle>
+                  </div>
+                </div>
+              </ion-card-header>
+              <ion-card-content class="chart-content">
+                <div class="chart-list-wrapper">
+                  <div class="chart-item" *ngFor="let rol of rolesData">
+                    <div class="chart-item-header">
+                      <span class="chart-item-name">{{ rol.name }}</span>
+                      <span class="chart-item-value">{{ rol.count }} encuestas ({{ rol.percentage }}%)</span>
+                    </div>
+                    <div class="progress-bar-track">
+                      <div class="progress-bar-fill fill-blue" [style.width.%]="rol.percentage"></div>
+                    </div>
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
+
+            <!-- Distribución por Plataforma (PC, Consola, Móvil, Navegador) -->
+            <ion-card class="chart-card" style="margin-top: 24px;">
+              <ion-card-header>
+                <div class="chart-header-row">
+                  <ion-icon name="hardware-chip-outline" class="chart-header-icon icon-orange"></ion-icon>
+                  <div>
+                    <ion-card-title class="chart-title">Plataformas de Juego más Populares</ion-card-title>
+                    <ion-card-subtitle class="chart-subtitle">Dónde prefieren jugar los politécnicos</ion-card-subtitle>
+                  </div>
+                </div>
+              </ion-card-header>
+              <ion-card-content class="chart-content">
+                <div class="chart-list-wrapper">
+                  <div class="chart-item" *ngFor="let plat of plataformasData">
+                    <div class="chart-item-header">
+                      <span class="chart-item-name">{{ plat.name }}</span>
+                      <span class="chart-item-value">{{ plat.count }} encuestas ({{ plat.percentage }}%)</span>
+                    </div>
+                    <div class="progress-bar-track">
+                      <div class="progress-bar-fill fill-orange" [style.width.%]="plat.percentage"></div>
+                    </div>
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
+
+          </ion-col>
+
+          <!-- Columna Derecha: Géneros Favoritos -->
+          <ion-col size="12" size-lg="6" class="col-animate">
+
+            <ion-card class="chart-card h-full-card">
+              <ion-card-header>
+                <div class="chart-header-row">
+                  <ion-icon name="albums-outline" class="chart-header-icon icon-green"></ion-icon>
+                  <div>
+                    <ion-card-title class="chart-title">Géneros más Solicitados</ion-card-title>
+                    <ion-card-subtitle class="chart-subtitle">Preferencia de géneros de videojuegos</ion-card-subtitle>
+                  </div>
+                </div>
+              </ion-card-header>
+              <ion-card-content class="chart-content">
+
+                <!-- Si no hay encuestas registradas aún -->
+                <div class="empty-genres" *ngIf="generosData.length === 0" style="padding: 60px 0; text-align: center;">
+                  <ion-icon name="game-controller-outline"
+                    style="font-size: 36px; color: #6b7280; margin-bottom: 8px;"></ion-icon>
+                  <p style="color: #9ca3af; font-size: 13px;">Registra encuestas en Inicio para ver los géneros
+                    populares.</p>
+                </div>
+
+                <div class="chart-list-wrapper" *ngIf="generosData.length > 0">
+                  <div class="chart-item" *ngFor="let gen of generosData; let i = index">
+                    <div class="chart-item-header">
+                      <div class="genre-rank-name">
+                        <span class="genre-rank">#{{ i + 1 }}</span>
+                        <span class="chart-item-name font-bold">{{ gen.name }}</span>
+                      </div>
+                      <span class="chart-item-value">{{ gen.count }} encuestas ({{ gen.percentage }}%)</span>
+                    </div>
+                    <div class="progress-bar-track">
+                      <div class="progress-bar-fill fill-green" [style.width.%]="gen.percentage"></div>
+                    </div>
+                  </div>
+                </div>
+
+              </ion-card-content>
+            </ion-card>
+
+          </ion-col>
+
+        </ion-row>
+      </ion-grid>
+
+      <!-- Mensaje de no encuestas en Base de Datos -->
+      <div class="empty-state" *ngIf="totalEncuestas === 0" style="margin-top: 32px;">
+        <ion-icon name="sparkles-outline" class="empty-icon"></ion-icon>
+        <h3>No hay datos agregados en Firestore</h3>
+        <p>Registra las primeras encuestas del campus desde la pestaña Inicio para poblar el tablero reactivo.</p>
+      </div>
+
+    </div>
+
+  </div>
+</ion-content>
