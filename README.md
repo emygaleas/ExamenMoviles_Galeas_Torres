@@ -282,7 +282,7 @@ La aplicación también se encuentra desplegada mediante Firebase Hosting:
 
 ## 🎥 Video de Funcionamiento
 
-🔗 
+🔗 https://github.com/user-attachments/assets/e5f6c9a1-7ebf-4c90-8e09-bccfc1a1f9cc
 
 ---
 
