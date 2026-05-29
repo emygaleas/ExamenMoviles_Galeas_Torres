@@ -329,7 +329,7 @@ export class HomePage implements OnInit {
 
       // Cargar la lista completa en memoria solo una vez
       if (this.cachedAllGames.length === 0) {
-        const response = await fetch(`https://corsproxy.io/?https://www.freetogame.com/api/games`);
+        const response = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent('https://www.freetogame.com/api/games')}`);
         if (response.ok) {
           this.cachedAllGames = await response.json();
         } else {
@@ -357,7 +357,7 @@ export class HomePage implements OnInit {
       this.isSearchingAPI = true;
       this.uploadStatusMessage = 'Cargando detalles...';
 
-      const response = await fetch(`https://corsproxy.io/?https://www.freetogame.com/api/game?id=${gameId}`);
+      const response = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(`https://www.freetogame.com/api/game?id=${gameId}`)}`);
       if (!response.ok) {
         throw new Error('No se pudo obtener el detalle del videojuego');
       }

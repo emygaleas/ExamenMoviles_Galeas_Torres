@@ -71,7 +71,7 @@ $color-text-muted: #6b7280;
 }
 
 .profile-wrapper {
-  padding: 18px 24px 24px;
+  padding: 18px 24px 120px;
   max-width: 950px;
   margin: 0 auto;
 }
@@ -251,7 +251,8 @@ $color-text-muted: #6b7280;
 
 @media (max-width: 820px) {
   .profile-wrapper {
-    padding: 14px 14px 24px;
+    padding: 14px 14px 120px;
+    /* Espacio extra para los tabs flotantes */
   }
 
   .profile-toolbar {
