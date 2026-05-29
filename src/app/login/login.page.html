@@ -1,4 +1,4 @@
-<ion-content [fullscreen]="true" class="login-content" scroll-y="false">
+<ion-content [fullscreen]="true" class="login-content">
 
   <div class="login-bg-grid"></div>
   <div class="login-orb orb-one"></div>
@@ -30,6 +30,8 @@
 
             <ion-input
               type="email"
+              inputmode="email"
+              autocomplete="email"
               placeholder="Correo electrónico"
               [(ngModel)]="email">
             </ion-input>
@@ -40,6 +42,7 @@
 
             <ion-input
               type="password"
+              autocomplete="current-password"
               placeholder="Contraseña"
               [(ngModel)]="password">
             </ion-input>

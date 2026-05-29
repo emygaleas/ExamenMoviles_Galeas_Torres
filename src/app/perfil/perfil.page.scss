@@ -19,12 +19,14 @@ $color-text-muted: #6b7280;
 .profile-header {
   background: $color-bg-surface;
   border-bottom: 1px solid $color-border;
+  padding-top: 22px;
 }
 
 .profile-toolbar {
   --background: #{$color-bg-surface};
   --border-width: 0;
-  padding: 8px 20px;
+  padding-top: 12px;
+  padding-bottom: 8px;
 }
 
 .profile-topbar {
