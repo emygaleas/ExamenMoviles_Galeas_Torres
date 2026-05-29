@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getFirestore, Firestore } from 'firebase/firestore';
-import { environment } from '../../environments/enviroment';
+import { environment } from '../../environments/environment';
 
 import {getAuth, Auth} from 'firebase/auth';
 
@@ -19,7 +19,7 @@ export class FirebaseService {
   constructor() {
 
     this.app = getApps().length === 0
-      ? initializeApp(environment.firebaseConfig)
+      ? initializeApp(environment.firebase)
       : getApp();
 
     this.firestore = getFirestore(this.app);

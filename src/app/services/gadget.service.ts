@@ -8,12 +8,17 @@ export interface Videojuego {
   nombre: string;              // Nombre de la persona encuestada
   edad: string;                // Rango de edad o edad aproximada
   rol: string;                 // estudiante, docente, administrativo, visitante
-  ubicacion: string;           // Ubicación en el campus
+  ubicacion: string;           // Lugar aproximado (si es dentro) o "Fuera del campus"
+  ubicacionTipo: string;       // 'Dentro del campus' o 'Fuera del campus'
+  latitud: number;             // Coordenadas GPS
+  longitud: number;            // Coordenadas GPS
+  fechaHora: string;           // Fecha y hora formateada
   videojuegoFavorito: string;  // Videojuego favorito
   plataforma: string;          // móvil, consola, PC, navegador
   generoFavorito: string;      // acción, aventura, deportes, estrategia, RPG, terror, simulación, otro
   comentario: string;          // Comentario breve (extraído de descripción corta)
   imageUrl: string;            // Imagen de la API de FreeToGame
+  fotoActividad?: string;      // Foto personalizada de la actividad
   createdAt: number;
 }
 

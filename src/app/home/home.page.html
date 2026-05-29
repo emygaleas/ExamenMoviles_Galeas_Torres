@@ -4,16 +4,14 @@
       <div class="logo-area">
         <ion-icon name="game-controller" class="logo-icon"></ion-icon>
         <div class="logo-text-wrapper">
-          <span class="logo-title">GamerSurvey</span>
-          <span class="logo-subtitle">COMUNIDAD EPN</span>
+          <span class="logo-title">Gamer Survey Campus</span>
         </div>
       </div>
 
       <div class="search-bar-container">
-        <!-- Buscador Global conectado a la API de FreeToGame -->
-        <ion-input placeholder="Buscar videojuegos en FreeToGame API..." [value]="" (ionInput)="onSearchChange($event)"
-          class="custom-search-input">
-          <ion-icon slot="start" name="sparkles" class="search-icon"></ion-icon>
+        <!-- Buscador Local de Encuestas de la Base de Datos -->
+        <ion-input placeholder="Buscar encuestas..." (ionInput)="onSearchChange($event)" class="custom-search-input">
+          <ion-icon slot="start" name="search" class="search-icon"></ion-icon>
         </ion-input>
       </div>
 
@@ -28,21 +26,6 @@
 <ion-content [fullscreen]="true" class="premium-content">
   <div class="dashboard-wrapper">
 
-    <!-- Hero Section -->
-    <div class="hero-section">
-      <div class="hero-overlay"></div>
-      <div class="hero-content">
-        <div class="supabase-status-badge">
-          <ion-icon name="checkmark-circle" class="status-icon"></ion-icon>
-          <span>Firestore Engine & FreeToGame API Active</span>
-        </div>
-        <h1>Encuesta de Videojuegos</h1>
-        <p>
-          Registra tus hábitos de juego en la politécnica. ¡Usa la barra de búsqueda de arriba para explorar juegos en la API global y registrar tu opinión sobre ellos, o revisa las encuestas ya realizadas abajo!
-        </p>
-      </div>
-    </div>
-
     <!-- 1. VISTA DE BÚSQUEDA GLOBAL DE LA API DE VIDEOCONSOLAS (Cuando se escribe algo en el buscador) -->
     <div class="catalog-section animate-fade" *ngIf="apiSearchQueryGlobal">
       <div class="section-header">
@@ -53,14 +36,13 @@
       <!-- Spinner asíncrono para excelente retroalimentación UX -->
       <div class="api-global-spinner-container" *ngIf="isSearchingAPIGlobal">
         <ion-spinner name="crescent" class="global-spinner"></ion-spinner>
-        <p class="spinner-lbl">Consultando base de datos de videojuegos de FreeToGame...</p>
+        <p class="spinner-lbl">Buscando...</p>
       </div>
 
       <!-- Grilla de resultados de la API -->
       <ion-grid class="ion-no-padding" *ngIf="!isSearchingAPIGlobal">
         <ion-row>
-          <ion-col size="12" size-md="6" size-lg="4" *ngFor="let game of apiSearchResultsGlobal"
-            class="col-animate">
+          <ion-col size="12" size-md="6" size-lg="4" *ngFor="let game of apiSearchResultsGlobal" class="col-animate">
             <ion-card class="gadget-card api-result-card">
               <div class="card-image-container">
                 <img [src]="game.thumbnail" [alt]="game.title" class="gadget-img" />
@@ -88,7 +70,8 @@
                 <p class="comment-text-api">"{{ game.short_description }}"</p>
 
                 <div class="card-footer-actions">
-                  <ion-button (click)="registerSurveyForGame(game.id)" class="btn-save fill-register-btn" fill="solid" size="small">
+                  <ion-button (click)="registerSurveyForGame(game.id)" class="btn-save fill-register-btn" fill="solid"
+                    size="small">
                     <ion-icon slot="start" name="sparkles"></ion-icon>
                     Registrar Encuesta
                   </ion-button>
@@ -102,7 +85,8 @@
         <div class="empty-state" *ngIf="apiSearchResultsGlobal.length === 0">
           <ion-icon name="search" class="empty-icon"></ion-icon>
           <h3>Sin coincidencias en la API</h3>
-          <p>No encontramos videojuegos gratuitos que coincidan con "{{ apiSearchQueryGlobal }}". Intenta con otro término.</p>
+          <p>No encontramos videojuegos gratuitos que coincidan con "{{ apiSearchQueryGlobal }}". Intenta con otro
+            término.</p>
         </div>
       </ion-grid>
     </div>
@@ -110,14 +94,13 @@
     <!-- 2. VISTA POR DEFECTO: CATÁLOGO DE ENCUESTAS GUARDADAS EN LA BASE DE DATOS (Cuando el buscador está vacío) -->
     <div class="catalog-section" *ngIf="!apiSearchQueryGlobal">
       <div class="section-header">
-        <h2>Respuestas Guardadas (Base de Datos)</h2>
+        <h2>Respuestas Guardadas </h2>
         <span class="section-divider"></span>
       </div>
 
       <ion-grid class="ion-no-padding">
         <ion-row>
-          <ion-col size="12" size-md="6" size-lg="4" *ngFor="let game of filteredGadgets$ | async"
-            class="col-animate">
+          <ion-col size="12" size-md="6" size-lg="4" *ngFor="let game of filteredGadgets$ | async" class="col-animate">
             <ion-card class="gadget-card">
 
               <!-- Portada del Videojuego -->
@@ -145,19 +128,24 @@
                     <ion-card-title class="gadget-title">{{ game.videojuegoFavorito }}</ion-card-title>
                     <div class="respondent-info-row">
                       <span class="respondent-alias">Por: {{ game.nombre }}</span>
-                      
+
                       <!-- Insignia de Ubicación -->
                       <div class="respondent-location">
                         <ion-icon name="location" class="location-badge-mini-icon"></ion-icon>
                         <span>{{ game.ubicacion }}</span>
                       </div>
                     </div>
+                    <!-- Coordenadas GPS -->
+                    <div class="card-gps-row" *ngIf="game.latitud !== undefined && game.longitud !== undefined">
+                      <ion-icon name="location"></ion-icon>
+                      <span>GPS: {{ game.latitud | number:'1.4-4' }}, {{ game.longitud | number:'1.4-4' }}</span>
+                    </div>
                   </div>
                 </div>
-                
+
                 <ion-card-subtitle class="gadget-date">
                   <ion-icon name="calendar" style="margin-right: 4px; vertical-align: middle;"></ion-icon>
-                  {{ game.createdAt | date:'dd/MM/yyyy, h:mm a' }}
+                  {{ game.fechaHora || (game.createdAt | date:'dd/MM/yyyy, h:mm a') }}
                 </ion-card-subtitle>
               </ion-card-header>
 
@@ -187,6 +175,15 @@
                   <ion-icon name="chatbubble-ellipses" class="quote-icon"></ion-icon>
                   <p class="comment-text">"{{ game.comentario }}"</p>
                 </div>
+
+                <!-- Foto de la Actividad (Personalizada) -->
+                <div class="activity-photo-attachment animate-fade" *ngIf="game.fotoActividad">
+                  <img [src]="game.fotoActividad" class="activity-photo-img" />
+                  <div class="activity-photo-badge">
+                    <ion-icon name="camera"></ion-icon>
+                    <span>Foto de Actividad</span>
+                  </div>
+                </div>
               </ion-card-content>
             </ion-card>
           </ion-col>
@@ -196,7 +193,8 @@
         <div class="empty-state" *ngIf="((filteredGadgets$ | async)?.length === 0)">
           <ion-icon name="game-controller" class="empty-icon"></ion-icon>
           <h3>Sin encuestas guardadas</h3>
-          <p>Usa el buscador de arriba para encontrar juegos o presiona "Nueva Encuesta" para registrar una manualmente.</p>
+          <p>Usa el buscador de arriba para encontrar juegos o presiona "Nueva Encuesta" para registrar una manualmente.
+          </p>
         </div>
       </ion-grid>
     </div>
@@ -211,7 +209,7 @@
         <div class="modal-form-header">
           <div class="form-header-info">
             <ion-icon name="sparkles" class="form-hdr-icon"></ion-icon>
-            <h2>{{ isEditMode ? 'Editar Encuesta' : 'Registrar Encuesta de Videojuegos' }}</h2>
+            <h2>{{ isEditMode ? 'Editar Encuesta' : 'Registrar Encuesta' }}</h2>
           </div>
           <ion-button (click)="closeAddModal()" fill="clear" class="btn-close-modal" [disabled]="isUploading">
             <ion-icon name="close" slot="icon-only"></ion-icon>
@@ -220,11 +218,11 @@
 
         <div class="modal-form-content">
           <ion-list lines="none" class="custom-list-form">
-            
+
             <!-- Nombre o Alias -->
             <div class="form-group">
-              <ion-label class="form-lbl">Nombre o Alias del encuestado *</ion-label>
-              <ion-input [(ngModel)]="personaNombre" placeholder="Ej. Joel_98 o tu nombre" class="form-txt-input"
+              <ion-label class="form-lbl">Nombre del encuestado *</ion-label>
+              <ion-input [(ngModel)]="personaNombre" placeholder="Ej. Juan Perez" class="form-txt-input"
                 [disabled]="isUploading">
               </ion-input>
             </div>
@@ -232,7 +230,8 @@
             <!-- Edad aproximada / Rango -->
             <div class="form-group">
               <ion-label class="form-lbl">Rango de Edad *</ion-label>
-              <ion-select [(ngModel)]="personaEdad" interface="popover" placeholder="Selecciona un rango" class="form-select-input" [disabled]="isUploading">
+              <ion-select [(ngModel)]="personaEdad" interface="popover" placeholder="Selecciona un rango"
+                class="form-select-input" [disabled]="isUploading">
                 <ion-select-option value="Menor de 18 años">Menor de 18 años</ion-select-option>
                 <ion-select-option value="18 - 25 años">18 - 25 años</ion-select-option>
                 <ion-select-option value="26 - 35 años">26 - 35 años</ion-select-option>
@@ -244,7 +243,8 @@
             <!-- Rol -->
             <div class="form-group">
               <ion-label class="form-lbl">Rol institucional *</ion-label>
-              <ion-select [(ngModel)]="personaRol" interface="popover" placeholder="Selecciona tu rol" class="form-select-input" [disabled]="isUploading">
+              <ion-select [(ngModel)]="personaRol" interface="popover" placeholder="Selecciona tu rol"
+                class="form-select-input" [disabled]="isUploading">
                 <ion-select-option value="Estudiante">Estudiante</ion-select-option>
                 <ion-select-option value="Docente">Docente</ion-select-option>
                 <ion-select-option value="Administrativo">Administrativo</ion-select-option>
@@ -252,38 +252,77 @@
               </ion-select>
             </div>
 
-            <!-- Ubicación en el Campus -->
+            <!-- Tipo de Ubicación (Dentro / Fuera del campus) -->
             <div class="form-group">
-              <ion-label class="form-lbl">Ubicación (Lugar de la encuesta) *</ion-label>
-              <ion-select [(ngModel)]="personaUbicacion" interface="popover" placeholder="Selecciona el lugar" class="form-select-input" [disabled]="isUploading">
-                <ion-select-option value="Biblioteca Central">Biblioteca Central</ion-select-option>
-                <ion-select-option value="Facultad de Sistemas (FIEE)">Facultad de Sistemas (FIEE)</ion-select-option>
-                <ion-select-option value="Aulas de Clase">Aulas de Clase</ion-select-option>
-                <ion-select-option value="Laboratorios de Computación">Laboratorios de Computación</ion-select-option>
-                <ion-select-option value="Cafetería Central">Cafetería Central</ion-select-option>
-                <ion-select-option value="Coliseo / Canchas">Coliseo / Canchas</ion-select-option>
-                <ion-select-option value="Edificio Administrativo">Edificio Administrativo</ion-select-option>
-                <ion-select-option value="Otro Lugar del Campus">Otro Lugar del Campus</ion-select-option>
+              <ion-label class="form-lbl">¿Dónde se realizó la encuesta? *</ion-label>
+              <ion-select [(ngModel)]="ubicacionTipo" (ionChange)="onUbicacionTipoChange()" interface="popover"
+                class="form-select-input" [disabled]="isUploading">
+                <ion-select-option value="Dentro del campus">Dentro del campus</ion-select-option>
+                <ion-select-option value="Fuera del campus">Fuera del campus</ion-select-option>
               </ion-select>
+            </div>
+
+            <!-- Lugar aproximado del campus (Sólo si es dentro del campus) -->
+            <div class="form-group animate-fade" *ngIf="ubicacionTipo === 'Dentro del campus'">
+              <ion-label class="form-lbl">Lugar aproximado del campus *</ion-label>
+              <ion-select [(ngModel)]="personaUbicacion" interface="popover"
+                placeholder="Selecciona el lugar del campus" class="form-select-input" [disabled]="isUploading">
+                <ion-select-option value="Biblioteca General">Biblioteca General</ion-select-option>
+                <ion-select-option value="Cafetería Central">Cafetería Central</ion-select-option>
+                <ion-select-option value="Entrada Av. Ladrón de Guevara">Entrada Av. Ladrón de
+                  Guevara</ion-select-option>
+                <ion-select-option value="Entrada Av. Toledo">Entrada Av. Toledo</ion-select-option>
+                <ion-select-option value="Entrada Calle Andaluz">Entrada Calle Andaluz</ion-select-option>
+                <ion-select-option value="Alrededores de la EPN">Alrededores de la EPN</ion-select-option>
+                <ion-select-option value="Facultad de Sistemas">Facultad de Sistemas</ion-select-option>
+                <ion-select-option value="Facultad de Eléctrica">Facultad de Eléctrica</ion-select-option>
+                <ion-select-option value="Facultad de Ciencias">Facultad de Ciencias</ion-select-option>
+                <ion-select-option value="Facultad de Ingeniería Civil">Facultad de Ingeniería Civil</ion-select-option>
+                <ion-select-option value="Facultad de Ingeniería Química">Facultad de Ingeniería
+                  Química</ion-select-option>
+                <ion-select-option value="Facultad de Ingeniería Mecánica">Facultad de Ingeniería
+                  Mecánica</ion-select-option>
+                <ion-select-option value="Facultad de Geología y Petróleos">Facultad de Geología y
+                  Petróleos</ion-select-option>
+                <ion-select-option value="Teatro Politécnico">Teatro Politécnico</ion-select-option>
+                <ion-select-option value="Coliseo Politécnico">Coliseo Politécnico</ion-select-option>
+                <ion-select-option value="Canchas / Áreas Deportivas">Canchas / Áreas Deportivas</ion-select-option>
+                <ion-select-option value="Administración Central">Administración Central</ion-select-option>
+                <ion-select-option value="Centro de Educación Continua (CEC)">Centro de Educación Continua
+                  (CEC)</ion-select-option>
+              </ion-select>
+            </div>
+
+            <!-- Georreferenciación (Coordenadas GPS) -->
+            <div class="form-group coordinates-group">
+              <ion-label class="form-lbl">Coordenadas GPS (Captura Automática)</ion-label>
+              <div class="gps-badge-container">
+                <span class="gps-coords-badge">
+                  <ion-icon name="location"></ion-icon>
+                  Lat: {{ latitud | number:'1.6-6' }} | Lon: {{ longitud | number:'1.6-6' }}
+                </span>
+                <ion-button fill="clear" size="small" (click)="obtenerCoordenadas()" [disabled]="isUploading"
+                  class="btn-refresh-gps" title="Actualizar Coordenadas GPS">
+                  <ion-icon name="sparkles" slot="icon-only"></ion-icon>
+                </ion-button>
+              </div>
             </div>
 
             <!-- BUSCADOR DE VIDEOJUEGOS EN LA API DENTRO DEL MODAL (OPCIONAL) -->
             <div class="api-search-section" *ngIf="!videojuegoFavorito">
-              <ion-label class="form-lbl">Buscar Videojuego en FreeToGame API *</ion-label>
+              <ion-label class="form-lbl">Videojuego Favorito *</ion-label>
               <div class="input-with-button">
-                <ion-input [(ngModel)]="apiSearchQuery" placeholder="Escribe para buscar (Ej. Overwatch, Flyff...)" class="form-txt-input search-game-input"
-                  [disabled]="isUploading || isSearchingAPI" (keyup.enter)="searchGamesOnAPI()">
+                <ion-input [value]="apiSearchQuery" (ionInput)="onApiSearchInput($event)"
+                  placeholder="Escribe para buscar (Ej. Overwatch)" class="form-txt-input search-game-input"
+                  [disabled]="isUploading">
                 </ion-input>
-                <ion-button (click)="searchGamesOnAPI()" class="api-search-btn" fill="clear" [disabled]="isUploading || isSearchingAPI || !apiSearchQuery.trim()" title="Buscar en FreeToGame">
-                  <ion-icon slot="icon-only" name="search" *ngIf="!isSearchingAPI"></ion-icon>
-                  <ion-spinner name="crescent" class="btn-spinner" *ngIf="isSearchingAPI"></ion-spinner>
-                </ion-button>
               </div>
-              <span class="api-help-text">Presiona Enter o la lupa para cargar sugerencias.</span>
-              
+              <span class="api-help-text">Las sugerencias aparecerán automáticamente mientras escribes.</span>
+
               <!-- Sugerencias de resultados -->
               <div class="api-results-list animate-fade" *ngIf="apiSearchResults.length > 0">
-                <div class="api-result-item" *ngFor="let result of apiSearchResults" (click)="selectGameFromAPI(result.id)">
+                <div class="api-result-item" *ngFor="let result of apiSearchResults"
+                  (click)="selectGameFromAPI(result.id)">
                   <img [src]="result.thumbnail" class="result-thumb" />
                   <div class="result-info">
                     <span class="result-title">{{ result.title }}</span>
@@ -299,7 +338,7 @@
                 <img [src]="imageUrl" class="specs-thumb" />
                 <div class="specs-details">
                   <h3 class="specs-title">{{ videojuegoFavorito }}</h3>
-                  
+
                   <div class="specs-badges-row">
                     <span class="specs-badge badge-genre">{{ generoFavorito }}</span>
                     <span class="specs-badge badge-platform">{{ plataforma }}</span>
@@ -315,6 +354,26 @@
                     <div class="specs-detail-row">
                       <span><strong>Lanzamiento:</strong> {{ selectedGameDetails.release_date }}</span>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Foto de la Actividad (Tomar Foto / Galería) -->
+            <div class="form-group animate-fade" *ngIf="videojuegoFavorito">
+              <ion-label class="form-lbl">Foto de la Actividad <span class="optional-lbl">(Cámara o
+                  Galería)</span></ion-label>
+              <div class="custom-photo-select-zone" (click)="seleccionarFotoActividad()">
+                <div class="photo-placeholder" *ngIf="!fotoActividad">
+                  <ion-icon name="camera" class="photo-camera-icon"></ion-icon>
+                  <span class="photo-primary-text">Tomar Foto o Subir desde Galería</span>
+                  <span class="photo-secondary-text">Usa la cámara o galería</span>
+                </div>
+                <div class="photo-preview-container" *ngIf="fotoActividad">
+                  <img [src]="fotoActividad" class="photo-preview-img" />
+                  <div class="photo-preview-overlay">
+                    <ion-icon name="camera"></ion-icon>
+                    <span>Cambiar / Capturar Foto</span>
                   </div>
                 </div>
               </div>

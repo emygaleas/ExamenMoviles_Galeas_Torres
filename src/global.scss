@@ -35,3 +35,57 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+/* ============================================================================
+   ESTILOS DE AJUSTE PARA MOSTRAR TEXTOS COMPLETOS EN DROPDOWNS (ION-SELECT)
+   ============================================================================ */
+
+/* Permitir que las opciones dentro de los popovers de selección hagan salto de línea */
+ion-select-popover ion-item {
+  --white-space: normal !important;
+  white-space: normal !important;
+}
+
+ion-select-popover ion-label,
+ion-select-popover .label-text,
+ion-select-popover ion-radio,
+ion-select-popover .item-native {
+  white-space: normal !important;
+  text-overflow: unset !important;
+  overflow: visible !important;
+  word-break: break-word !important;
+}
+
+/* 3. Perforar el Shadow DOM de ion-radio (Ionic 7+) para obligar al texto a mostrarse completo */
+ion-select-popover ion-radio::part(label) {
+  white-space: normal !important;
+  text-overflow: unset !important;
+  overflow: visible !important;
+  word-break: break-word !important;
+  padding-inline-end: 8px !important;
+}
+
+/* Compatibilidad para popovers con clases select-popover */
+.select-popover ion-item,
+.select-popover ion-label,
+.select-popover .label-text,
+.select-popover ion-radio {
+  --white-space: normal !important;
+  white-space: normal !important;
+  text-overflow: unset !important;
+  overflow: visible !important;
+}
+
+.select-popover ion-radio::part(label) {
+  white-space: normal !important;
+  text-overflow: unset !important;
+  overflow: visible !important;
+  word-break: break-word !important;
+}
+
+/* Permitir salto de línea en el texto seleccionado que se muestra en el campo del formulario */
+ion-select::part(text) {
+  white-space: normal !important;
+  text-overflow: unset !important;
+  overflow: visible !important;
+}

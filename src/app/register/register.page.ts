@@ -19,7 +19,6 @@ import {
 
 import { ToastController } from '@ionic/angular';
 
-import { SupabaseService } from 'src/app/services/supadatabase.service';
 import { Router } from '@angular/router';
 
 import { addIcons } from 'ionicons';

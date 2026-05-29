@@ -37,6 +37,7 @@ $font-premium: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
   background: $color-bg-surface;
   border-bottom: 1px solid #{$color-border};
   font-family: $font-premium;
+  padding-top: env(safe-area-inset-top, 0px); /* Protege contra la barra de estado de Android/iOS (Safe Area) */
 
   .header-toolbar {
     --background: #{$color-bg-surface};
@@ -1537,5 +1538,209 @@ ion-modal {
   
   &:hover {
     filter: brightness(1.15);
+  }
+}
+
+// --- Coordenadas GPS en Formulario ---
+.coordinates-group {
+  margin-top: 4px;
+}
+
+.gps-badge-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(96, 165, 250, 0.05);
+  border: 1px solid rgba(96, 165, 250, 0.15);
+  padding: 8px 12px;
+  border-radius: 12px;
+  height: 44px;
+}
+
+.gps-coords-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $color-accent;
+  font-family: monospace;
+  flex: 1;
+
+  ion-icon {
+    font-size: 16px;
+  }
+}
+
+.btn-refresh-gps {
+  --color: #{$color-accent};
+  --padding-start: 0;
+  --padding-end: 0;
+  margin: 0;
+  height: 36px;
+  width: 36px;
+
+  &:hover {
+    --color: #{$color-text-primary};
+  }
+}
+
+// --- Coordenadas GPS en Tarjetas ---
+.card-gps-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: $color-text-muted;
+  margin-top: 4px;
+  font-family: monospace;
+
+  ion-icon {
+    font-size: 12px;
+    color: rgba($color-accent, 0.6);
+  }
+}
+
+// --- Selector de Foto Personalizado (Cámara y Galería) ---
+.custom-photo-select-zone {
+  border: 1px dashed rgba($color-accent, 0.4);
+  border-radius: 16px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.01);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 4px;
+
+  &:hover {
+    border-color: $color-accent;
+    background: rgba(96, 165, 250, 0.03);
+    box-shadow: 0 0 15px rgba(96, 165, 250, 0.05);
+
+    .photo-camera-icon {
+      transform: scale(1.1);
+      color: $color-accent;
+    }
+  }
+}
+
+.photo-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.photo-camera-icon {
+  font-size: 32px;
+  color: $color-text-secondary;
+  transition: all 0.3s ease;
+}
+
+.photo-primary-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.photo-secondary-text {
+  font-size: 11px;
+  color: $color-text-muted;
+  font-style: italic;
+}
+
+.photo-preview-container {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover .photo-preview-overlay {
+    opacity: 1;
+  }
+}
+
+.photo-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-preview-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+
+  ion-icon {
+    font-size: 24px;
+  }
+}
+
+// --- Adjunto de Foto de Actividad en la Tarjeta ---
+.activity-photo-attachment {
+  position: relative;
+  width: 100%;
+  height: 145px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.activity-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.activity-photo-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(14, 14, 17, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: $color-accent;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+
+  ion-icon {
+    font-size: 12px;
   }
 }
