@@ -1,155 +1,271 @@
-# 📱 Tech Gadgets Showcase
+# 🎮 Game Survey Campus
 
-Un catálogo de gadgets tecnológicos desarrollada con **Ionic 8**, **Angular 20 (Standalone Components)** y **Supabase** como backend en la nube (PostgreSQL + Cloud Storage).
+## 👩‍💻👨‍💻 Estudiantes
 
----
-
-## 🚀 Características Principales
-
-*   **Sincronización Cloud en Tiempo Real:** Realiza consultas y sincronizaciones directas y reactivas desde **Supabase Database**. Eliminación absoluta de almacenamiento cacheado en local (`localStorage`).
-*   **Almacenamiento en la Nube (Supabase Storage):** Subida física automatizada de imágenes representativas y audios descriptivos para cada gadget en un bucket seguro (`gadgets-assets`).
-*   **CRUD Completo y Dinámico:**
-    *   **Creación:** Registro de gadgets con nombre, descripción, enlace de video (YouTube/Vimeo/Web), imagen y audio.
-    *   **Lectura:** Galería con búsqueda reactiva en tiempo real y filtrado instantáneo por texto.
-    *   **Edición:** Modificación de metadatos y reemplazo transparente de archivos multimedia en la nube.
-    *   **Eliminación:** Borrado físico del registro en base de datos y eliminación automática de sus archivos asociados en Supabase Storage para optimizar espacio.
-    *   **Reproductor de Video Adaptativo:** Integración nativa del reproductor de video configurado de forma responsive para abarcar toda la pantalla sin generar molestas barras de desplazamiento.
-    *   **Reproductor de Audio Individual:** Controles interactivos integrados por tarjeta de gadget con indicador dinámico de carga.
-*   **Preparación Total para APK Nativa:**
-    *   **Splash Screen & Iconos Personalizados:** Generados automáticamente en alta definición
-    *   **Permisos de Android Declarados:** Configurado en `AndroidManifest.xml` con permisos de red, cámara, grabación de voz y almacenamiento multimedia granular compatible con Android 13+.
+**Emily Alejandra Galeas Tingo**
+**Joel Eduardo Torres Mora**
 
 ---
 
-## 🛠️ Arquitectura y Tecnologías
+# 📌 Descripción del Proyecto
 
-```text
-  ┌───────────────────────────────────┐
-  │     Cliente Móvil: Ionic/Angular   │
-  └─────────────────┬─────────────────┘
-                    │
-         ┌──────────┴──────────┐
-         ▼                     ▼
-┌──────────────────┐  ┌──────────────────┐
-│Supabase Database │  │ Supabase Storage │
-│ (Tabla: gadgets) │  │(Bucket: assets)  │
-└──────────────────┘  └──────────────────┘
+Game Survey Campus es una aplicación móvil desarrollada con **Ionic + Angular** y **Firebase**, creada para el examen del primer bimestre de la materia de Aplicaciones Móviles.
+
+La aplicación permite recopilar información sobre las preferencias de videojuegos de los estudiantes de la Escuela Politécnica Nacional mediante encuestas realizadas dentro del campus.
+
+Además, incorpora autenticación de usuarios, gestión de perfiles, almacenamiento en la nube, geolocalización y visualización de resultados.
+
+---
+
+# 🛠️ Tecnologías Utilizadas
+
+## Frontend
+
+* Ionic Framework
+* Angular
+* TypeScript
+* HTML
+* SCSS
+
+## Backend y Base de Datos
+
+* Firebase Authentication
+* Cloud Firestore
+
+## Consumo de API
+
+* FreeToGame API
+
+## Herramientas
+
+* Capacitor
+* Android Studio
+* Visual Studio Code
+
+---
+
+# 📱 Funcionalidades Implementadas
+
+## 🔐 Autenticación de Usuarios
+
+La aplicación permite:
+
+* Registro de usuarios
+* Inicio de sesión
+* Cierre de sesión
+* Validación de credenciales
+* Persistencia de sesión
+
+---
+
+## 👤 Gestión de Perfil
+
+Cada usuario puede:
+
+* Visualizar su información
+* Editar nombre y apellido
+* Actualizar fotografía de perfil
+* Mantener sus datos almacenados en Firebase
+
+---
+
+## 🎮 Encuestas de Videojuegos
+
+La aplicación permite:
+
+* Registrar encuestas relacionadas con videojuegos
+* Buscar videojuegos mediante una API externa
+* Seleccionar videojuegos para responder la encuesta
+* Almacenar respuestas en la nube
+
+---
+
+## 🌐 Consumo de API
+
+Se utilizó la API pública:
+
+https://www.freetogame.com/api-doc
+
+Permitiendo:
+
+* Obtener videojuegos disponibles
+* Buscar videojuegos por nombre
+* Mostrar información relevante para las encuestas
+
+---
+
+## 📍 Geolocalización
+
+Durante cada encuesta se registra:
+
+* Latitud
+* Longitud
+* Ubicación del encuestado dentro del campus
+
+La información se almacena junto con los resultados de la encuesta.
+
+---
+
+## 📊 Dashboard de Visualización
+
+La aplicación incorpora un tablero donde se pueden visualizar:
+
+* Total de encuestas realizadas
+* Videojuegos registrados
+* Información recopilada durante el trabajo de campo
+* Estadísticas generales del proyecto
+
+---
+
+## 📱 Pantalla de Bienvenida
+
+La aplicación cuenta con:
+
+* Pantalla de presentación
+* Información del proyecto
+* Código QR
+* Acceso directo a registro e inicio de sesión
+
+---
+
+# 🎨 Diseño de la Aplicación
+
+La interfaz fue diseñada utilizando:
+
+* Glassmorphism
+* Gradientes modernos
+* Diseño responsive
+* Componentes visuales inspirados en videojuegos
+* Tarjetas dinámicas
+* Animaciones suaves
+
+El objetivo fue ofrecer una experiencia moderna y atractiva para los estudiantes.
+
+---
+
+# ☁️ Firebase
+
+## Firebase Authentication
+
+Utilizado para:
+
+* Registro de usuarios
+* Inicio de sesión
+* Gestión de sesiones
+
+## Cloud Firestore
+
+Utilizado para almacenar:
+
+* Información de usuarios
+* Encuestas
+* Ubicaciones
+* Datos estadísticos
+
+---
+
+# 🚀 Instalación del Proyecto
+
+## 1. Clonar repositorio
+
+```bash
+git clone URL_DEL_REPOSITORIO
 ```
 
-*   **Frontend Framework:** Ionic v8.0.0 & Angular v20.0.0 (Standalone Components & Reactive Router).
-*   **Gestión de Estados:** RxJS BehaviorSubjects y Flujos Reactivos Asíncronos (`async/await`).
-*   **Backend as a Service:** Supabase JS v2.106.1.
-*   **Base de Datos:** PostgreSQL con RLS (Row Level Security) habilitado públicamente.
-*   **Procesamiento de Imágenes:** Jimp v1.6.1 (Generación de assets móviles de alta fidelidad).
-
 ---
 
-## 📊 Estructura de la Base de Datos
+## 2. Instalar dependencias
 
-Para que el sistema funcione, se utiliza una tabla en **Supabase** llamada `gadgets` con columnas tipadas que mapean directamente las propiedades del modelo de TypeScript. 
-
-### Script de Creación SQL (PostgreSQL)
-
-Ejecuta el siguiente script en el **SQL Editor** de tu consola de Supabase para instanciar la base de datos:
-
-```sql
--- 1. Crear la tabla de Gadgets
-CREATE TABLE public.gadgets (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    name TEXT NOT NULL,
-    description TEXT,
-    "imageUrl" TEXT,
-    "audioUrl" TEXT,
-    "videoUrl" TEXT,
-    "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
-
--- 2. Habilitar la seguridad a nivel de filas (RLS)
-ALTER TABLE public.gadgets ENABLE ROW LEVEL SECURITY;
-
--- 3. Crear Políticas de Acceso Público (Lectura, Inserción, Actualización y Eliminación)
-CREATE POLICY "Permitir lectura publica" ON public.gadgets
-    FOR SELECT USING (true);
-
-CREATE POLICY "Permitir insercion publica" ON public.gadgets
-    FOR INSERT WITH CHECK (true);
-
-CREATE POLICY "Permitir actualizacion publica" ON public.gadgets
-    FOR UPDATE USING (true);
-
-CREATE POLICY "Permitir eliminacion publica" ON public.gadgets
-    FOR DELETE USING (true);
-```
-
-> [!IMPORTANT]
-> **Configuración del Storage en Supabase:**
-> Debes crear un bucket público en Supabase Storage llamado `gadgets-assets` y habilitar políticas públicas de lectura (`select`), subida (`insert`/`update`) y borrado (`delete`) de objetos para permitir el correcto flujo de imágenes y audios.
-
----
-
-## ⚙️ Configuración del Entorno
-
-Modifica los archivos de configuración de entorno ubicados en `src/environments/` para enlazar la app con tus credenciales de Supabase:
-
-### `src/environments/environment.ts` (Desarrollo y Producción)
-```typescript
-export const environment = {
-  production: false, // true en environment.prod.ts
-  supabaseUrl: 'TU_SUPABASE_URL',
-  supabaseKey: 'TU_SUPABASE_ANON_KEY',
-  supabaseBucket: 'gadgets-assets'
-};
+```bash
+npm install
 ```
 
 ---
 
-## 💻 Comandos del Proyecto
+## 3. Ejecutar proyecto
 
-Asegúrate de tener instaladas las dependencias ejecutando `npm install`.
-
-### 1. Levantar Servidor de Desarrollo
-Inicia el entorno de desarrollo local con recarga rápida en el navegador:
 ```bash
 ionic serve
 ```
 
-### 2. Compilar para Producción
-Genera los archivos estáticos listos para producción y optimizados en la carpeta `www`:
-```bash
-npm run build
-```
+---
 
-### 3. Generar Splash Screen e Iconos Nativos
-Si cambias la imagen base en `src/assets/icon/gadget.png`, puedes regenerar los 107 tamaños de iconos y pantallas de carga para Android ejecutando:
-```bash
-node generate-assets.js
-npx @capacitor/assets generate
-```
+## 4. Ejecutar en Android
 
-### 4. Sincronizar y Compilar la APK Nativamente
-Sincroniza el código de Angular y los assets móviles con la carpeta de Android:
 ```bash
-npx cap sync
+ionic build
+npx cap sync android
 npx cap open android
 ```
-*(Se abrirá **Android Studio**. Ve a **Build** > **Build Bundle(s) / APK(s)** > **Build APK(s)** para exportar tu archivo `.apk` final).*
 
 ---
 
-## 📂 Estructura de Directorios Clave
+# 📦 Dependencias Principales
 
-```text
-├── android/                   # Directorio del proyecto nativo de Android
-├── assets/                    # Assets base en alta definición (1024x1024 / 2732x2732)
-├── src/
-│   ├── app/
-│   │   ├── home/              # Vista principal, controladores y estilos premium
-│   │   ├── models/            # Interfaces y modelos de TypeScript
-│   │   └── services/          # Conectores y lógica del CRUD con Supabase
-│   ├── assets/                # Iconos del sistema y PWA
-│   ├── theme/                 # Paleta de colores e identidades visuales
-│   └── index.html             # Punto de entrada optimizado con tipografías
-├── capacitor.config.ts        # Configuración del Splash Screen y Plugins móviles
-├── generate-assets.js         # Script automatizado para procesar iconos nativos con Jimp
-└── README.md                  # Documentación del sistema (este archivo)
+```bash
+npm install firebase
+npm install @capacitor/android
+npm install @capacitor/camera
+npm i
 ```
+
+---
+
+# 📷 Evidencias
+
+| 🚀 Welcome                     | 🔐 Login                     | 👤 Registro                     | 🎮 Home                     |
+| ------------------------------ | ---------------------------- | ------------------------------- | --------------------------- |
+| ![](./evidencias/welcome.jpeg) | ![](./evidencias/login.jpeg) | ![](./evidencias/register.jpeg) | ![](./evidencias/home.jpeg) |
+
+| 📝 Encuesta                     | 📊 Dashboard                     | 👤 Perfil                     | 📍 Geolocalización                     |
+| ------------------------------- | -------------------------------- | ----------------------------- | -------------------------------------- |
+| ![](./evidencias/encuesta.jpeg) | ![](./evidencias/dashboard.jpeg) | ![](./evidencias/perfil.jpeg) | ![](./evidencias/geolocalizacion.jpeg) |
+
+---
+# 🌐 Accesos del Proyecto
+
+## 📱 Descarga del APK
+
+La versión Android de la aplicación en el siguiente link:
+
+🔗 [Descargar APK](https://epnecuador-my.sharepoint.com/:u:/g/personal/emily_galeas_epn_edu_ec/IQAHz11xkfxvTKQfyuLRgzYDAbQMe8GXg0ukA0gbit6bYRM?e=3ittiR)
+
+---
+
+## ☁️ Sitio Web Desplegado
+
+La aplicación también se encuentra desplegada mediante Firebase Hosting:
+
+🔗 [Despliegue](https://tu-proyecto.web.app)
+
+---
+
+## 🎥 Video de Funcionamiento
+
+🔗 
+
+---
+
+# 📚 Aprendizajes Obtenidos
+
+Durante el desarrollo del proyecto se reforzaron conocimientos relacionados con:
+
+* Ionic Framework
+* Angular
+* Firebase Authentication
+* Cloud Firestore
+* Consumo de APIs REST
+* Geolocalización
+* Manejo de formularios
+* Gestión de perfiles
+* Desarrollo móvil multiplataforma
+* Diseño UI/UX
+* Compilación para Android
+
+---
+
+# ✅ Conclusión
+
+Game Survey Campus permitió integrar diferentes tecnologías utilizadas durante la materia de Aplicaciones Móviles en una única solución funcional.
+
+A través del uso de Ionic, Firebase y APIs externas se desarrolló una aplicación capaz de recopilar información de estudiantes, gestionar usuarios y visualizar resultados, demostrando la aplicación práctica de los conocimientos adquiridos durante el primer bimestre.
